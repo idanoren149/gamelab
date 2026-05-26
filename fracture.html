@@ -307,7 +307,6 @@
   <div class="win-banner hidden" id="win-banner">
     <div class="win-title">You won! 🎉</div>
     <div class="win-sub"  id="win-sub"></div>
-    <div class="win-note">◆ marks the original weak points — cells whose removal splits the network</div>
     <div class="win-btns">
       <button class="win-btn sec" onclick="handleReset()">Play again</button>
       <button class="win-btn pri" id="next-puzzle-btn" onclick="handleNextDay()"></button>
@@ -390,32 +389,6 @@ const PUZZLES = [
     ],
   },
   // ── Add future puzzles below ──────────────────────────────────────────────
-    {
-    id: 3,
-    name: 'Puzzle 3',
-    difficulty: 'Hard',
-    date: '2026-05-27',
-    rows: 8,
-    cols: 8,
-    optimalAttacks: 4,
-    initialGrid: G([
-      ['G', 'G', 'G', 'G', 'G', 'G', 'G', 'G'],
-      ['G', 'G', 'G', 'X', 'G', 'G', 'G', 'G'],
-      ['G', 'G', 'X', 'G', 'G', 'G', 'G', 'G'],
-      ['X', 'G', 'X', 'G', 'X', 'G', 'X', 'G'],
-      ['G', 'G', 'X', 'G', 'G', 'G', 'G', 'X'],
-      ['X', 'G', 'G', 'G', 'X', 'G', 'G', 'X'],
-      ['X', 'G', 'G', 'G', 'G', 'X', 'G', 'G'],
-      ['X', 'G', 'G', 'G', 'G', 'X', 'G', 'G'],
-    ]),
-    optimalSequence: [[4, 1], [4, 5], [2, 3], [0, 4]],
-    hints: [
-    'The active region has 49 connected cells with 5 critical bridge points — removing a bridge splits the network.',
-    'Start by attacking row 5, column 2 — this is a key bridge that divides the active network into unequal halves.',
-    'After the first split, the larger surviving region still has bridges. Attack row 5, column 6 to fragment it further.',
-    'For the final attack, row 1, column 5 tips the balance — the isolated blue regions will outnumber the remaining green network.',
-    ],
-  },
 ];
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
@@ -520,9 +493,8 @@ let grid     = [];
 let history  = [];
 let attacks  = 0;
 let won      = false;
-let showHint = false;
+let hintCount = 0;
 let demoStep = null;
-let initialAPs = new Set();
 
 function puzzle() { return available[pidx]; }
 
@@ -585,14 +557,18 @@ function render() {
   // Controls
   document.getElementById('undo-btn').disabled = history.length === 0;
   document.getElementById('hint-btn').disabled = won;
-  document.getElementById('hint-btn').textContent = showHint ? '◆ Hide' : 'Hint';
+  document.getElementById('hint-btn').textContent =
+    hintCount === 0 ? 'Hint' :
+    hintCount < p.optimalSequence.length ? `Hint ${hintCount}` : 'Hint ✓';
   document.getElementById('opt-btn').textContent = demoStep === null ? 'Optimal' : `Step ${demoStep+1}/${p.optimalSequence.length}`;
 
   // Grid sizing
   const GAP=1, MAX=400;
   const sz = Math.max(36, Math.min(52, Math.floor((Math.min(window.innerWidth-32, MAX) - (p.cols-1)*GAP - 8) / p.cols)));
 
-  const currentAPs = showHint && !won ? getArticulationPoints(grid) : new Set();
+  const hintCells = hintCount > 0 && !won
+    ? new Set(p.optimalSequence.slice(0, hintCount).map(([r,c]) => `${r},${c}`))
+    : new Set();
 
   const gridEl = document.getElementById('game-grid');
   gridEl.style.gridTemplateColumns = `repeat(${p.cols}, ${sz}px)`;
@@ -605,8 +581,7 @@ function render() {
       const key   = `${r},${c}`;
       const info  = compMap[key];
       const isClickable = state === 'active' && !won;
-      const isAP = (won && initialAPs.has(key)) ||
-                   (showHint && !won && state === 'active' && currentAPs.has(key));
+      const isAP = !won && state === 'active' && hintCells.has(key);
 
       let bg;
       if (state === 'inactive' && info) {
@@ -657,7 +632,6 @@ function tap(r, c) {
 
   if (isGameOver(grid)) {
     won = true;
-    initialAPs = getArticulationPoints(puzzle().initialGrid);
     saveBest();
     render();
     spawnConfetti();
@@ -688,14 +662,15 @@ function handleUndo() {
 
 function handleReset() {
   grid = cloneGrid(puzzle().initialGrid);
-  history = []; attacks = 0; won = false; showHint = false; demoStep = null;
+  history = []; attacks = 0; won = false; hintCount = 0; demoStep = null;
   document.getElementById('confetti-wrap').innerHTML = '';
   render();
 }
 
 function handleHint() {
   if (won) return;
-  showHint = !showHint;
+  const p = puzzle();
+  hintCount = Math.min(hintCount + 1, p.optimalSequence.length);
   render();
 }
 
@@ -703,7 +678,7 @@ function handleOptimal() {
   const p = puzzle();
   if (demoStep === null) {
     grid = cloneGrid(p.initialGrid);
-    history = []; attacks = 0; won = false; hintIdx = null; demoStep = 0;
+    history = []; attacks = 0; won = false; hintCount = 0; demoStep = 0;
     render();
   } else {
     const [r,c] = p.optimalSequence[demoStep];
@@ -718,7 +693,6 @@ function handleOptimal() {
     }
     if (isGameOver(grid)) {
       won = true;
-      initialAPs = getArticulationPoints(p.initialGrid);
       saveBest();
       render();
       spawnConfetti();
