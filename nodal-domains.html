@@ -470,33 +470,6 @@ const PUZZLES = [
       '4,0': 1, '4,2': 1,
     },
   },
-  {
-  id: , name: '', difficulty: 'Medium',
-  date: '2026-05-27',
-  rows: 5, cols: 5, target: 7,
-  solution: [
-    [0, 0, 1, 1, 1],
-    [1, 1, 0, 0, 0],
-    [1, 1, 0, 0, 1],
-    [1, 1, 1, 1, 0],
-    [1, 0, 1, 1, 1]
-  ],
-  seeds: {
-    '0,0': 0,
-    '0,3': 1,
-    '2,0': 1,
-    '1,3': 0,
-    '2,4': 1,
-    '3,4': 0,
-    '4,1': 0,
-    '0,4': 1,
-    '4,2': 1,
-    '2,3': 0,
-    '2,1': 1,
-    '0,2': 1,
-    '2,2': 0,
-  },
-},
 ];
 
 // ─── Game state ───────────────────────────────────────────────────────────────
@@ -691,7 +664,6 @@ function render() {
     }
   }
 
-  document.getElementById('undo-btn').disabled = history.length === 0;
   document.getElementById('hint-btn').disabled = won;
 }
 
