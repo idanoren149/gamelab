@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Fracture</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e8e6df;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .app {
+      max-width: 440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 16px 8px;
+    }
+
+    .back-btn {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: #1e2030;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #aaa;
+      font-size: 20px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .back-btn:active { background: #252838; }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #f0ede6;
+      flex: 1;
+    }
+
+    /* ── How to play ── */
+    .how-to {
+      margin: 0 16px 10px;
+      border: 1px solid #2a2d3e;
+      border-radius: 12px;
+      background: #161822;
+      overflow: hidden;
+    }
+    .how-to summary {
+      padding: 10px 14px;
+      font-size: 13px; font-weight: 700;
+      color: #aaa;
+      cursor: pointer;
+      list-style: none;
+      display: flex; align-items: center; gap: 6px;
+      user-select: none;
+    }
+    .how-to summary::-webkit-details-marker { display: none; }
+    .how-to summary::after {
+      content: '▸'; margin-left: auto;
+      font-size: 11px; color: #555;
+      transition: transform 0.2s;
+    }
+    .how-to[open] summary::after { transform: rotate(90deg); }
+    .how-to-body { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 6px; }
+    .how-to p { font-size: 13px; line-height: 1.55; color: #888; }
+    .how-to-rules { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
+    .how-to-rule {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12.5px; color: #999;
+      background: #1e2030; border-radius: 8px;
+      padding: 7px 10px; line-height: 1.45;
+    }
+    .how-to-rule .ri { flex-shrink: 0; font-size: 14px; line-height: 1.4; }
+
+    /* ── Day nav ── */
+    .day-nav {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 2px 16px 8px; gap: 8px;
+    }
+    .day-arrow {
+      width: 32px; height: 32px;
+      border: none; border-radius: 8px;
+      background: #1e2030;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #aaa;
+      flex-shrink: 0;
+      transition: background 0.1s;
+    }
+    .day-arrow:active { background: #252838; }
+    .day-arrow:disabled { opacity: 0.3; cursor: default; }
+    .day-info { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .day-label { font-size: 14px; font-weight: 800; color: #f0ede6; letter-spacing: -0.2px; }
+    .day-date  { font-size: 11px; color: #555; }
+
+    .diff-badge {
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px; flex-shrink: 0;
+    }
+    .diff-badge.Medium { background: rgba(202,138,4,0.2);  color: #fbbf24; }
+    .diff-badge.Hard   { background: rgba(239,68,68,0.18); color: #f87171; }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 0 16px 10px;
+    }
+    .stat-box {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 8px 4px;
+      border-radius: 10px;
+      background: #161822;
+    }
+    .stat-val {
+      font-size: 18px; font-weight: 900;
+      color: #f0ede6; line-height: 1;
+    }
+    .stat-lbl {
+      font-size: 9px; color: #666;
+      line-height: 1; margin-top: 3px;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .stat-sub { font-size: 8px; color: #444; line-height: 1; margin-top: 1px; }
+
+    /* ── Hint / demo banners ── */
+    .banner {
+      margin: 0 16px 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .banner.hint { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: #fbbf24; }
+    .banner.demo { background: rgba(59,130,246,0.12);  border: 1px solid rgba(59,130,246,0.25);  color: #93c5fd; text-align: center; font-size: 12px; }
+    .banner.hidden { display: none; }
+
+    /* ── Win banner ── */
+    .win-banner {
+      margin: 0 16px 10px;
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(34,197,94,0.12);
+      border: 2px solid rgba(34,197,94,0.3);
+      text-align: center;
+    }
+    .win-banner.hidden { display: none; }
+    .win-title { font-size: 20px; font-weight: 900; color: #4ade80; margin-bottom: 2px; }
+    .win-sub   { font-size: 13px; color: #86efac; margin-bottom: 4px; }
+    .win-note  { font-size: 11px; color: #4ade80; opacity: 0.7; margin-bottom: 12px; }
+    .win-btns  { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .win-btn {
+      padding: 8px 16px;
+      border-radius: 10px; border: none;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .win-btn.sec { background: #1e2030; color: #ccc; }
+    .win-btn.sec:active { background: #252838; }
+    .win-btn.pri { background: #16a34a; color: white; }
+    .win-btn.pri:active { background: #15803d; }
+
+    /* ── Grid ── */
+    .grid-wrap { display: flex; justify-content: center; padding: 0 8px 12px; }
+    .game-grid {
+      display: grid;
+      background: #1e1e1e;
+      padding: 4px;
+      border-radius: 10px;
+    }
+    .cell {
+      border-radius: 3px;
+      position: relative;
+      transition: background-color 200ms ease;
+      cursor: default;
+    }
+    .cell.clickable { cursor: pointer; }
+    .cell.clickable:hover::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.15);
+    }
+    .cell.flash { animation: flashCell 0.35s ease; }
+    @keyframes flashCell {
+      0%   { filter: brightness(2.2); }
+      100% { filter: brightness(1); }
+    }
+    .cell-badge {
+      position: absolute; bottom: 2px; right: 2px;
+      font-weight: 700; line-height: 1;
+      color: rgba(0,0,0,0.4);
+      pointer-events: none;
+    }
+    .cell-badge.inactive { color: rgba(255,255,255,0.6); }
+    .cell.ap-marker::before {
+      content: '◆';
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: #F59E0B;
+      pointer-events: none;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex; gap: 12px; align-items: center;
+      padding: 0 16px 10px;
+      font-size: 11px; color: #666;
+      flex-wrap: wrap;
+    }
+    .leg { display: flex; align-items: center; gap: 4px; }
+    .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex; justify-content: center;
+      gap: 6px; padding: 0 16px 32px; flex-wrap: wrap;
+    }
+    .ctrl-btn {
+      flex: 1; min-width: 60px; max-width: 80px;
+      padding: 10px 0;
+      border-radius: 12px; border: none;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      background: #1e2030; color: #ccc;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:active { background: #252838; }
+    .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
+    .ctrl-btn.hint-btn  { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .ctrl-btn.hint-btn:active { background: rgba(245,158,11,0.25); }
+    .ctrl-btn.opt-btn   { background: rgba(59,130,246,0.15);  color: #93c5fd; max-width: 96px; }
+    .ctrl-btn.opt-btn:active { background: rgba(59,130,246,0.25); }
+
+    /* ── Confetti ── */
+    .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
+    .cp { position: absolute; animation: fall linear forwards; }
+    @keyframes fall {
+      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(105vh) rotate(740deg); opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <button class="back-btn" onclick="window.history.back()" title="Back">&#8249;</button>
+    <h1>Fracture</h1>
+  </header>
+
+  <details class="how-to">
+    <summary>&#9432; How to play</summary>
+    <div class="how-to-body">
+      <p>Attack green cells to disconnect the network. Isolated pieces turn blue. Win when the largest blue fragment exceeds the largest remaining green piece.</p>
+      <div class="how-to-rules">
+        <div class="how-to-rule"><span class="ri">👆</span><span>Tap any green cell to attack it. It turns red and is removed from the network.</span></div>
+        <div class="how-to-rule"><span class="ri">💔</span><span>After each attack, smaller detached green pieces turn blue (inactive). Only the largest green group survives.</span></div>
+        <div class="how-to-rule"><span class="ri">🏆</span><span>You win when the largest blue piece is bigger than the largest remaining green piece. Fewer attacks = better score.</span></div>
+        <div class="how-to-rule"><span class="ri">◆</span><span>Gold diamonds on the solved grid show the original bridge points — the critical joints you needed to sever.</span></div>
+      </div>
+    </div>
+  </details>
+
+  <div class="day-nav">
+    <button class="day-arrow" id="prev-btn" onclick="goDay(-1)" title="Previous day">&#8249;</button>
+    <div class="day-info">
+      <span class="day-label" id="day-label"></span>
+      <span class="day-date"  id="day-date"></span>
+    </div>
+    <span id="diff-badge" class="diff-badge"></span>
+    <button class="day-arrow" id="next-btn" onclick="goDay(1)"  title="Next day">&#8250;</button>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-box"><div class="stat-val" id="s-attacks">0</div><div class="stat-lbl">Attacks</div><div class="stat-sub" id="s-par"></div></div>
+    <div class="stat-box"><div class="stat-val" id="s-green">0</div><div class="stat-lbl">Green</div><div class="stat-sub">largest</div></div>
+    <div class="stat-box"><div class="stat-val" id="s-blue">0</div><div class="stat-lbl">Blue</div><div class="stat-sub">largest</div></div>
+    <div class="stat-box"><div class="stat-val" id="s-regions">0</div><div class="stat-lbl">Regions</div><div class="stat-sub">blue</div></div>
+  </div>
+
+  <div class="banner hint hidden" id="hint-banner"></div>
+  <div class="banner demo hidden" id="demo-banner"></div>
+
+  <div class="win-banner hidden" id="win-banner">
+    <div class="win-title">You won! 🎉</div>
+    <div class="win-sub"  id="win-sub"></div>
+    <div class="win-note">Gold diamonds show original bridge points</div>
+    <div class="win-btns">
+      <button class="win-btn sec" onclick="handleReset()">Play again</button>
+      <button class="win-btn pri" id="next-puzzle-btn" onclick="handleNextDay()"></button>
+    </div>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="game-grid" id="game-grid"></div>
+  </div>
+
+  <div class="legend">
+    <span class="leg"><span class="swatch" style="background:#7CB87A"></span>Active</span>
+    <span class="leg"><span class="swatch" style="background:#4BB8D4"></span>Inactive</span>
+    <span class="leg"><span class="swatch" style="background:#E05C30"></span>Attacked</span>
+    <span class="leg"><span class="swatch" style="background:#2a2a2a;border:1px solid #444"></span>Blocked</span>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="undo-btn"  onclick="handleUndo()"  disabled>Undo</button>
+    <button class="ctrl-btn" id="reset-btn" onclick="handleReset()">Reset</button>
+    <button class="ctrl-btn hint-btn" id="hint-btn" onclick="handleHint()">Hint</button>
+    <button class="ctrl-btn opt-btn"  id="opt-btn"  onclick="handleOptimal()">Optimal</button>
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confetti-wrap"></div>
+
+<script>
+// ─── Puzzle data ──────────────────────────────────────────────────────────────
+// Each puzzle needs a date field (YYYY-MM-DD). Puzzles with future dates are hidden.
+// Add new puzzles by appending to this array with a future date.
+
+function G(rows) {
+  return rows.map(row => row.map(c => c === 'G' ? 'active' : 'blocked'));
+}
+
+const PUZZLES = [
+  {
+    id: 1, name: 'The Bridge', difficulty: 'Medium',
+    date: '2026-05-25',
+    rows: 8, cols: 8, optimalAttacks: 3,
+    initialGrid: G([
+      ['G','G','X','G','G','X','G','G'],
+      ['G','G','X','G','G','X','G','G'],
+      ['G','G','G','G','G','G','G','G'],
+      ['X','X','X','G','G','X','X','X'],
+      ['G','G','X','G','G','X','G','G'],
+      ['G','G','G','G','G','G','G','G'],
+      ['G','G','X','G','G','X','G','G'],
+      ['G','G','X','G','G','X','G','G'],
+    ]),
+    optimalSequence: [[3,3],[3,4],[5,3]],
+    hints: [
+      'Row 3 is almost entirely blocked — only columns 3 and 4 connect the top half to the bottom half.',
+      'Both bridge cells in row 3 must be destroyed to completely sever top from bottom.',
+      'After severing top and bottom, look for a choke point in the larger half.',
+      'Row 5 in column 3 is the only horizontal connection in the bottom half — attack it last.',
+    ],
+  },
+  {
+    id: 2, name: 'The Highway', difficulty: 'Hard',
+    date: '2026-05-26',
+    rows: 8, cols: 8, optimalAttacks: 4,
+    initialGrid: G([
+      ['G','G','G','X','X','G','X','X'],
+      ['X','G','G','X','X','G','G','G'],
+      ['X','X','G','G','X','G','G','X'],
+      ['G','G','G','G','G','G','G','G'],
+      ['G','G','G','G','G','G','X','G'],
+      ['G','G','G','G','G','X','G','G'],
+      ['G','X','X','G','G','G','G','G'],
+      ['G','X','X','G','X','G','G','G'],
+    ]),
+    optimalSequence: [[3,3],[4,4],[5,3],[3,6]],
+    hints: [
+      'Row 3 is a fully green highway — the only complete horizontal connector in the entire grid.',
+      'A single attack on row 3 is not enough; the upper and lower halves have detour routes.',
+      'Attacking (3,3) then (4,4) together cuts the main cross-junction between quadrants.',
+      'Your last two cuts should isolate the top-right cluster from everything else.',
+    ],
+  },
+  // ── Add future puzzles below ──────────────────────────────────────────────
+];
+
+// ─── Date helpers ─────────────────────────────────────────────────────────────
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fmtDate(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+}
+
+const TODAY = todayStr();
+const available = PUZZLES.filter(p => p.date <= TODAY).sort((a,b) => a.date.localeCompare(b.date));
+
+// ─── Game logic ───────────────────────────────────────────────────────────────
+
+const DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+
+function getComponents(grid, state) {
+  const rows = grid.length, cols = grid[0].length;
+  const vis = Array.from({length:rows}, () => new Array(cols).fill(false));
+  const comps = [];
+  for (let r=0;r<rows;r++) for (let c=0;c<cols;c++) {
+    if (grid[r][c]!==state||vis[r][c]) continue;
+    const comp=[], q=[[r,c]]; vis[r][c]=true;
+    while(q.length){const[cr,cc]=q.shift();comp.push([cr,cc]);for(const[dr,dc]of DIRS){const nr=cr+dr,nc=cc+dc;if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&grid[nr][nc]===state&&!vis[nr][nc]){vis[nr][nc]=true;q.push([nr,nc]);}}}
+    comps.push(comp);
+  }
+  return comps;
+}
+
+function applyAttack(grid, row, col) {
+  const g = grid.map(r=>[...r]);
+  g[row][col] = 'attacked';
+  const ac = getComponents(g, 'active');
+  if (ac.length > 1) {
+    let li=0; for(let i=1;i<ac.length;i++) if(ac[i].length>ac[li].length) li=i;
+    for(let i=0;i<ac.length;i++) if(i!==li) for(const[r,c]of ac[i]) g[r][c]='inactive';
+  }
+  return g;
+}
+
+function isGameOver(grid) {
+  const ac = getComponents(grid,'active');
+  const ic = getComponents(grid,'inactive');
+  if (!ic.length) return false;
+  const la = ac.length ? Math.max(...ac.map(c=>c.length)) : 0;
+  const li = Math.max(...ic.map(c=>c.length));
+  return li > la;
+}
+
+function getCompMap(grid) {
+  const map = {};
+  for (const state of ['active','inactive']) {
+    getComponents(grid, state).forEach((comp, id) => {
+      for (const [r,c] of comp) map[`${r},${c}`] = {id, size:comp.length, state};
+    });
+  }
+  return map;
+}
+
+function getArticulationPoints(grid) {
+  const rows=grid.length, cols=grid[0].length;
+  const cells=[];
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) if(grid[r][c]==='active') cells.push([r,c]);
+  if(!cells.length) return new Set();
+  const n=cells.length;
+  const idx=new Map(cells.map(([r,c],i)=>[`${r},${c}`,i]));
+  const disc=new Array(n).fill(-1), low=new Array(n).fill(0);
+  const ap=new Set(); let timer=0;
+  for(let start=0;start<n;start++){
+    if(disc[start]!==-1) continue;
+    const stack=[{u:start,parent:-1,children:0}];
+    disc[start]=low[start]=timer++;
+    while(stack.length){
+      const frame=stack[stack.length-1];
+      const{u,parent}=frame;
+      const[r,c]=cells[u];
+      if(!frame.neighbors){frame.neighbors=[];frame.ni=0;for(const[dr,dc]of DIRS){const nr=r+dr,nc=c+dc;const v=idx.get(`${nr},${nc}`);if(v!==undefined)frame.neighbors.push(v);}}
+      let pushed=false;
+      while(frame.ni<frame.neighbors.length){
+        const v=frame.neighbors[frame.ni++];
+        if(disc[v]===-1){frame.children++;disc[v]=low[v]=timer++;stack.push({u:v,parent:u,children:0});pushed=true;break;}
+        else if(v!==parent) low[u]=Math.min(low[u],disc[v]);
+      }
+      if(!pushed){
+        stack.pop();
+        if(stack.length){const pf=stack[stack.length-1];const pu=pf.u;low[pu]=Math.min(low[pu],low[u]);if(pf.parent===-1&&pf.children>1)ap.add(pu);if(pf.parent!==-1&&low[u]>=disc[pu])ap.add(pu);}
+      }
+    }
+  }
+  return new Set([...ap].map(i=>`${cells[i][0]},${cells[i][1]}`));
+}
+
+// ─── Game state ───────────────────────────────────────────────────────────────
+
+let pidx     = available.length - 1;
+let grid     = [];
+let history  = [];
+let attacks  = 0;
+let won      = false;
+let hintIdx  = null;
+let demoStep = null;
+let initialAPs = new Set();
+
+function puzzle() { return available[pidx]; }
+
+function cloneGrid(g) { return g.map(r=>[...r]); }
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+
+const CELL_COLORS = {
+  active:   '#7CB87A',
+  blocked:  '#1e1e1e',
+  attacked: '#E05C30',
+};
+const INACTIVE_VARS = ['#4BB8D4','#38A8C8','#62CCE0','#2998BE','#74D4E8'];
+
+function render() {
+  const p = puzzle();
+  const compMap = getCompMap(grid);
+  const ac = getComponents(grid,'active');
+  const ic = getComponents(grid,'inactive');
+  const la = ac.length ? Math.max(...ac.map(c=>c.length)) : 0;
+  const li = ic.length ? Math.max(...ic.map(c=>c.length)) : 0;
+
+  // Day nav
+  const isToday = p.date === TODAY;
+  document.getElementById('day-label').textContent = isToday ? `Today — ${p.name}` : p.name;
+  document.getElementById('day-date').textContent  = fmtDate(p.date);
+  const badge = document.getElementById('diff-badge');
+  badge.textContent = p.difficulty;
+  badge.className = `diff-badge ${p.difficulty}`;
+  document.getElementById('prev-btn').disabled = pidx <= 0;
+  document.getElementById('next-btn').disabled = pidx >= available.length - 1;
+
+  // Stats
+  document.getElementById('s-attacks').textContent = attacks;
+  document.getElementById('s-par').textContent     = `par ${p.optimalAttacks}`;
+  document.getElementById('s-green').textContent   = la;
+  document.getElementById('s-blue').textContent    = li;
+  document.getElementById('s-regions').textContent = ic.length;
+
+  // Hint banner
+  const hintBanner = document.getElementById('hint-banner');
+  if (hintIdx !== null) {
+    hintBanner.innerHTML = `<strong>Hint ${hintIdx+1}/${p.hints.length}:</strong> ${p.hints[hintIdx]}`;
+    hintBanner.classList.remove('hidden');
+  } else {
+    hintBanner.classList.add('hidden');
+  }
+
+  // Demo banner
+  const demoBanner = document.getElementById('demo-banner');
+  if (demoStep !== null) {
+    demoBanner.textContent = `Optimal demo — tap "Next step" to advance (${demoStep}/${p.optimalSequence.length})`;
+    demoBanner.classList.remove('hidden');
+  } else {
+    demoBanner.classList.add('hidden');
+  }
+
+  // Win banner
+  const winBanner = document.getElementById('win-banner');
+  if (won) {
+    const rating = attacks <= p.optimalAttacks ? 'Optimal! 🌟' : attacks <= p.optimalAttacks+2 ? 'Good 👍' : 'Keep practicing';
+    document.getElementById('win-sub').textContent = `${attacks} attack${attacks!==1?'s':''} — ${rating}`;
+    document.getElementById('next-puzzle-btn').textContent = pidx < available.length-1 ? 'Next day →' : 'All done! 🏆';
+    winBanner.classList.remove('hidden');
+  } else {
+    winBanner.classList.add('hidden');
+  }
+
+  // Controls
+  document.getElementById('undo-btn').disabled = history.length === 0;
+  document.getElementById('hint-btn').disabled = won;
+  document.getElementById('opt-btn').textContent = demoStep === null ? 'Optimal' : `Step ${demoStep+1}/${p.optimalSequence.length}`;
+
+  // Grid sizing
+  const GAP=1, MAX=400;
+  const sz = Math.max(36, Math.min(52, Math.floor((Math.min(window.innerWidth-32, MAX) - (p.cols-1)*GAP - 8) / p.cols)));
+
+  const gridEl = document.getElementById('game-grid');
+  gridEl.style.gridTemplateColumns = `repeat(${p.cols}, ${sz}px)`;
+  gridEl.style.gap = GAP + 'px';
+  gridEl.innerHTML = '';
+
+  for (let r=0; r<p.rows; r++) {
+    for (let c=0; c<p.cols; c++) {
+      const state = grid[r][c];
+      const key   = `${r},${c}`;
+      const info  = compMap[key];
+      const isClickable = state === 'active' && !won;
+      const isAP = won && initialAPs.has(key) && state === 'attacked';
+
+      let bg;
+      if (state === 'inactive' && info) {
+        bg = INACTIVE_VARS[info.id % INACTIVE_VARS.length];
+      } else {
+        bg = CELL_COLORS[state] || '#1e1e1e';
+      }
+
+      const div = document.createElement('div');
+      div.className = 'cell' + (isClickable ? ' clickable' : '') + (isAP ? ' ap-marker' : '');
+      div.style.cssText = `width:${sz}px;height:${sz}px;background-color:${bg};`;
+
+      if (info && (state==='active'||state==='inactive')) {
+        const badge = document.createElement('span');
+        badge.className = 'cell-badge' + (state==='inactive' ? ' inactive' : '');
+        badge.style.fontSize = Math.max(7, sz*0.18) + 'px';
+        badge.textContent = info.size;
+        div.appendChild(badge);
+      }
+
+      if (isClickable) {
+        div.addEventListener('click', () => tap(r, c));
+        div.addEventListener('touchend', e => { e.preventDefault(); tap(r, c); }, {passive:false});
+      }
+
+      gridEl.appendChild(div);
+    }
+  }
+}
+
+// ─── Handlers ─────────────────────────────────────────────────────────────────
+
+function tap(r, c) {
+  if (won || grid[r][c] !== 'active') return;
+  demoStep = null;
+  history = [...history.slice(-25), cloneGrid(grid)];
+  attacks++;
+
+  grid = applyAttack(grid, r, c);
+
+  // Flash
+  const cells = document.getElementById('game-grid').children;
+  const idx = r * puzzle().cols + c;
+  if (cells[idx]) {
+    cells[idx].classList.add('flash');
+    setTimeout(() => cells[idx].classList.remove('flash'), 350);
+  }
+
+  if (isGameOver(grid)) {
+    won = true;
+    initialAPs = getArticulationPoints(puzzle().initialGrid);
+    saveBest();
+    render();
+    spawnConfetti();
+  } else {
+    render();
+  }
+}
+
+function saveBest() {
+  const p = puzzle();
+  try {
+    const key = `gg_fracture_best_${p.id}`;
+    const prev = parseInt(localStorage.getItem(key) ?? '999');
+    if (attacks < prev) localStorage.setItem(key, String(attacks));
+    const solved = JSON.parse(localStorage.getItem('gg_fracture_solved') ?? '[]');
+    if (!solved.includes(p.id)) { solved.push(p.id); localStorage.setItem('gg_fracture_solved', JSON.stringify(solved)); }
+  } catch { /* ignore */ }
+}
+
+function handleUndo() {
+  if (!history.length) return;
+  grid = history[history.length-1];
+  history = history.slice(0,-1);
+  attacks = Math.max(0, attacks-1);
+  won = false; demoStep = null;
+  render();
+}
+
+function handleReset() {
+  grid = cloneGrid(puzzle().initialGrid);
+  history = []; attacks = 0; won = false; hintIdx = null; demoStep = null;
+  document.getElementById('confetti-wrap').innerHTML = '';
+  render();
+}
+
+function handleHint() {
+  if (won) return;
+  const p = puzzle();
+  hintIdx = hintIdx === null ? 0 : (hintIdx+1) % p.hints.length;
+  render();
+}
+
+function handleOptimal() {
+  const p = puzzle();
+  if (demoStep === null) {
+    grid = cloneGrid(p.initialGrid);
+    history = []; attacks = 0; won = false; hintIdx = null; demoStep = 0;
+    render();
+  } else {
+    const [r,c] = p.optimalSequence[demoStep];
+    history = [...history.slice(-25), cloneGrid(grid)];
+    attacks++;
+    grid = applyAttack(grid, r, c);
+    const nextStep = demoStep + 1;
+    if (nextStep >= p.optimalSequence.length) {
+      demoStep = null;
+    } else {
+      demoStep = nextStep;
+    }
+    if (isGameOver(grid)) {
+      won = true;
+      initialAPs = getArticulationPoints(p.initialGrid);
+      saveBest();
+      render();
+      spawnConfetti();
+    } else {
+      render();
+    }
+  }
+}
+
+function goDay(delta) {
+  const next = pidx + delta;
+  if (next < 0 || next >= available.length) return;
+  pidx = next;
+  handleReset();
+}
+
+function handleNextDay() {
+  if (pidx < available.length-1) goDay(1);
+  else document.getElementById('win-banner').classList.add('hidden');
+}
+
+// ─── Confetti ─────────────────────────────────────────────────────────────────
+
+function spawnConfetti() {
+  const wrap = document.getElementById('confetti-wrap');
+  wrap.innerHTML = '';
+  const colors = ['#7CB87A','#4BB8D4','#f0b429','#9b8ecf','#f4a35a','#e07aab'];
+  for (let i=0;i<70;i++) {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    const w = 4 + Math.random()*7;
+    el.style.cssText = [
+      `left:${Math.random()*100}%`,
+      `width:${w}px`,`height:${w}px`,
+      `background:${colors[Math.floor(Math.random()*colors.length)]}`,
+      `border-radius:${Math.random()>.5?'50%':'2px'}`,
+      `animation-duration:${1.4+Math.random()*2}s`,
+      `animation-delay:${Math.random()*.6}s`,
+    ].join(';');
+    wrap.appendChild(el);
+  }
+  setTimeout(() => { wrap.innerHTML = ''; }, 4000);
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+
+if (available.length === 0) {
+  document.querySelector('.app').innerHTML =
+    '<div style="padding:60px 24px;text-align:center;color:#555;font-size:15px;">🔒 No puzzles available yet. Check back soon!</div>';
+} else {
+  handleReset();
+}
+</script>
+</body>
+</html>
