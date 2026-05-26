@@ -390,6 +390,32 @@ const PUZZLES = [
     ],
   },
   // ── Add future puzzles below ──────────────────────────────────────────────
+    {
+    id: 3,
+    name: 'Puzzle 3',
+    difficulty: 'Hard',
+    date: '2026-05-27',
+    rows: 8,
+    cols: 8,
+    optimalAttacks: 4,
+    initialGrid: G([
+      ['G', 'G', 'G', 'G', 'G', 'G', 'G', 'G'],
+      ['G', 'G', 'G', 'X', 'G', 'G', 'G', 'G'],
+      ['G', 'G', 'X', 'G', 'G', 'G', 'G', 'G'],
+      ['X', 'G', 'X', 'G', 'X', 'G', 'X', 'G'],
+      ['G', 'G', 'X', 'G', 'G', 'G', 'G', 'X'],
+      ['X', 'G', 'G', 'G', 'X', 'G', 'G', 'X'],
+      ['X', 'G', 'G', 'G', 'G', 'X', 'G', 'G'],
+      ['X', 'G', 'G', 'G', 'G', 'X', 'G', 'G'],
+    ]),
+    optimalSequence: [[4, 1], [4, 5], [2, 3], [0, 4]],
+    hints: [
+    'The active region has 49 connected cells with 5 critical bridge points — removing a bridge splits the network.',
+    'Start by attacking row 5, column 2 — this is a key bridge that divides the active network into unequal halves.',
+    'After the first split, the larger surviving region still has bridges. Attack row 5, column 6 to fragment it further.',
+    'For the final attack, row 1, column 5 tips the balance — the isolated blue regions will outnumber the remaining green network.',
+    ],
+  },
 ];
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
