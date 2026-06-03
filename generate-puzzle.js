@@ -122,68 +122,11 @@ function pickSeeds(sol, rows, cols) {
           }
         }
       }
-      let best = domain[0], bestScore = -1;
-      for (const [cr, cc] of domain) {
-        let score = 0;
-        for (const [dr, dc] of DIRS) {
-          const nr = cr+dr, nc = cc+dc;
-          if (nr>=0 && nr<rows && nc>=0 && nc<cols && sol[nr][nc]===color) score++;
-        }
-        if (score > bestScore) { bestScore = score; best = [cr, cc]; }
-      }
-      seeds[`${best[0]},${best[1]}`] = color;
+      const pick = domain[Math.floor(Math.random() * domain.length)];
+      seeds[`${pick[0]},${pick[1]}`] = color;
     }
   }
   return seeds;
-}
-
-function addBoundarySeeds(seeds, sol, rows, cols, n) {
-  const ns = {...seeds}, cands = [];
-  for (let r = 0; r < rows; r++)
-    for (let c = 0; c < cols; c++) {
-      if (ns[`${r},${c}`] !== undefined) continue;
-      for (const [dr, dc] of DIRS) {
-        const nr = r+dr, nc = c+dc;
-        if (nr>=0 && nr<rows && nc>=0 && nc<cols && sol[nr][nc]!==sol[r][c]) {
-          cands.push([r, c]); break;
-        }
-      }
-    }
-  shuffle(cands);
-  for (let i = 0; i < Math.min(n, cands.length); i++)
-    ns[`${cands[i][0]},${cands[i][1]}`] = sol[cands[i][0]][cands[i][1]];
-  return ns;
-}
-
-function countSolutions(seeds, sol, rows, cols, target) {
-  const grid = Array.from({length: rows}, () => new Array(cols).fill(-1));
-  const sSet = new Set(Object.keys(seeds));
-  for (const [k, v] of Object.entries(seeds)) {
-    const [r, c] = k.split(',').map(Number); grid[r][c] = v;
-  }
-  const free = [];
-  for (let r = 0; r < rows; r++)
-    for (let c = 0; c < cols; c++)
-      if (!sSet.has(`${r},${c}`)) free.push([r, c]);
-  let count = 0;
-  const deadline = Date.now() + 3000;
-  let timedOut = false;
-  function bt(idx) {
-    if (timedOut || count >= 2) return;
-    if (Date.now() > deadline) { timedOut = true; return; }
-    if (idx === free.length) {
-      if (countDomains(grid, rows, cols) === target) count++;
-      return;
-    }
-    const [r, c] = free[idx];
-    for (const color of [0, 1]) {
-      grid[r][c] = color; bt(idx + 1);
-      if (timedOut || count >= 2) { grid[r][c] = -1; return; }
-    }
-    grid[r][c] = -1;
-  }
-  bt(0);
-  return { count, timedOut };
 }
 
 function makePuzzle(difficulty) {
@@ -191,19 +134,7 @@ function makePuzzle(difficulty) {
   const target = p.targetMin + Math.floor(Math.random() * (p.targetMax - p.targetMin + 1));
   const sol = generateSolution(p.rows, p.cols, target);
   if (!sol) return null;
-  let seeds = pickSeeds(sol, p.rows, p.cols);
-  const maxFree = 22;
-  while (p.rows * p.cols - Object.keys(seeds).length > maxFree)
-    seeds = addBoundarySeeds(seeds, sol, p.rows, p.cols, 2);
-  const maxSeeds = Math.floor(p.rows * p.cols * 0.55);
-  let verif = { count: 0, timedOut: true };
-  for (let i = 0; i < 8; i++) {
-    verif = countSolutions(seeds, sol, p.rows, p.cols, target);
-    if (verif.count === 1) break;
-    if (verif.timedOut || Object.keys(seeds).length >= maxSeeds) break;
-    seeds = addBoundarySeeds(seeds, sol, p.rows, p.cols, 2);
-  }
-  if (verif.count > 1) return null;
+  const seeds = pickSeeds(sol, p.rows, p.cols);
   return { rows: p.rows, cols: p.cols, target, difficulty, solution: sol, seeds };
 }
 
