@@ -163,7 +163,7 @@
   {
     "id": 4,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -230,7 +230,7 @@
   {
     "id": 5,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "approved",
     "rows": 4,
     "cols": 4,
     "target": 5,
@@ -275,7 +275,7 @@
   {
     "id": 6,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -335,7 +335,7 @@
   {
     "id": 7,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -396,7 +396,7 @@
   {
     "id": 8,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -465,7 +465,7 @@
   {
     "id": 9,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "approved",
     "rows": 4,
     "cols": 4,
     "target": 3,
@@ -510,7 +510,7 @@
   {
     "id": 10,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -567,7 +567,7 @@
   {
     "id": 11,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -627,7 +627,7 @@
   {
     "id": 12,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -696,7 +696,7 @@
   {
     "id": 13,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "rejected",
     "rows": 4,
     "cols": 4,
     "target": 3,
@@ -741,7 +741,7 @@
   {
     "id": 14,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -798,7 +798,7 @@
   {
     "id": 15,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 5,
