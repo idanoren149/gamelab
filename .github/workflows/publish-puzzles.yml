@@ -3,7 +3,7 @@ name: Publish Approved Nodal Domains Puzzles
 on:
   push:
     paths:
-      - 'puzzles-queue.json'
+      - 'domains/puzzles-queue.json'
 
 jobs:
   publish:
@@ -19,13 +19,13 @@ jobs:
           node-version: '22'
 
       - name: Publish approved puzzles
-        run: node publish-puzzle.js
+        run: node domains/publish-puzzle.js
 
       - name: Commit if files changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodal-domains-v2.html puzzles-queue.json
+          git add domains/nodal-domains-v2.html domains/puzzles-queue.json
           if git diff --staged --quiet; then
             echo "No approved puzzles to publish. Nothing to commit."
           else
