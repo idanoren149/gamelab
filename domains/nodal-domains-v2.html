@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Nodal Domains</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #FAF9F6;
+      color: #1a1a1a;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .app {
+      max-width: 440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 16px 8px;
+    }
+
+    .back-btn {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #555;
+      font-size: 20px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .back-btn:active { background: #eee; }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #111;
+      flex: 1;
+    }
+
+    /* ── Daily puzzle nav ── */
+    .day-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 16px 8px;
+      gap: 8px;
+    }
+
+    .day-arrow {
+      width: 32px; height: 32px;
+      border: none;
+      border-radius: 8px;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.10);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      color: #555;
+      flex-shrink: 0;
+      transition: background 0.1s;
+    }
+    .day-arrow:active { background: #eee; }
+    .day-arrow:disabled { opacity: 0.3; cursor: default; }
+
+    .day-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .day-label {
+      font-size: 14px;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.2px;
+    }
+
+    .day-date {
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    .diff-badge {
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .diff-badge.Easy   { background: #dcfce7; color: #16a34a; }
+    .diff-badge.Medium { background: #fef9c3; color: #ca8a04; }
+    .diff-badge.Hard   { background: #fee2e2; color: #dc2626; }
+    .diff-badge.Custom { background: #ede9fe; color: #7c3aed; }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 16px 8px;
+      font-size: 14px;
+      color: #555;
+    }
+    .stats-bar .domains { font-weight: 500; }
+    .stats-bar .domains b { font-weight: 700; color: #111; }
+    .stats-bar .domains b.match { color: #16a34a; }
+    .stats-bar .timer { font-variant-numeric: tabular-nums; color: #777; }
+
+    /* ── Grid ── */
+    .grid-wrap { display: flex; justify-content: center; padding: 0 16px 16px; }
+
+    .grid { display: grid; }
+
+    .cell {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      border-radius: 4px;
+      border-style: solid;
+      transition: background-color 0.12s ease;
+      touch-action: manipulation;
+    }
+    .cell.seeded { cursor: default; }
+
+    .cell .d-id {
+      position: absolute; top: 2px; right: 3px;
+      font-size: 9px; font-weight: 700; line-height: 1;
+      color: rgba(255,255,255,0.75);
+      pointer-events: none;
+    }
+    .cell .c-icon {
+      position: absolute; bottom: 1px; left: 2px;
+      font-size: 8px; line-height: 1;
+      pointer-events: none;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex; gap: 14px; align-items: center;
+      padding: 0 16px 12px;
+      font-size: 12px; color: #777;
+      flex-wrap: wrap;
+    }
+    .leg { display: flex; align-items: center; gap: 4px; }
+    .swatch {
+      width: 12px; height: 12px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .leg-tap { margin-left: auto; color: #aaa; }
+
+    /* ── Action buttons ── */
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 16px 32px;
+    }
+
+    .act-btn {
+      flex: 1;
+      min-width: 64px; max-width: 80px;
+      padding: 10px 0;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer;
+      background: #f3f4f6;
+      color: #374151;
+      transition: background 0.1s;
+    }
+    .act-btn:active { background: #e5e7eb; }
+    .act-btn:disabled { opacity: 0.35; cursor: default; }
+    .act-btn.hint { background: #fffbeb; color: #b45309; }
+    .act-btn.hint:active { background: #fef3c7; }
+
+    /* ── Win overlay ── */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.42);
+      z-index: 40;
+      align-items: center; justify-content: center;
+    }
+    .overlay.show { display: flex; }
+
+    .win-card {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      margin: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+      width: 100%; max-width: 320px;
+      animation: scaleIn 0.25s ease-out;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+
+    .win-head { text-align: center; margin-bottom: 16px; }
+    .win-emoji { font-size: 40px; margin-bottom: 2px; }
+    .win-title { font-size: 22px; font-weight: 900; color: #111; }
+    .win-sub { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+    .win-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .win-stat {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f9fafb;
+    }
+    .win-stat-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+    .win-stat-value { font-size: 20px; font-weight: 900; color: #111; line-height: 1; }
+
+    .win-actions { display: flex; gap: 8px; }
+    .win-btn {
+      flex: 1; padding: 10px 0;
+      border-radius: 12px; border: none;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .win-btn.sec { background: #f3f4f6; color: #374151; }
+    .win-btn.sec:active { background: #e5e7eb; }
+    .win-btn.pri { background: #6699CC; color: white; }
+    .win-btn.pri:active { background: #5080B8; }
+
+    /* ── Confetti ── */
+    .confetti-wrap {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+    }
+    .cp {
+      position: absolute;
+      animation: fall linear forwards;
+    }
+    @keyframes fall {
+      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(105vh) rotate(740deg); opacity: 0.4; }
+    }
+
+    /* ── How to play ── */
+    .how-to {
+      margin: 0 16px 10px;
+      border: 1px solid #e5e3dc;
+      border-radius: 12px;
+      background: #f5f3ee;
+      overflow: hidden;
+    }
+
+    .how-to summary {
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #555;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+    .how-to summary::-webkit-details-marker { display: none; }
+    .how-to summary::after {
+      content: '▸';
+      margin-left: auto;
+      font-size: 11px;
+      color: #aaa;
+      transition: transform 0.2s;
+    }
+    .how-to[open] summary::after { transform: rotate(90deg); }
+
+    .how-to-body {
+      padding: 0 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .how-to p {
+      font-size: 13px;
+      line-height: 1.55;
+      color: #666;
+    }
+
+    .how-to-rules {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .how-to-rule {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12.5px;
+      color: #555;
+      background: white;
+      border-radius: 8px;
+      padding: 7px 10px;
+      line-height: 1.45;
+    }
+
+    .how-to-rule .ri { flex-shrink: 0; font-size: 14px; line-height: 1.4; }
+
+    /* ── Dark mode ── */
+    @media (prefers-color-scheme: dark) {
+      body { background: #111113; color: #e8e6df; }
+      h1 { color: #f0ede6; }
+      .back-btn { background: #1e1e22; color: #aaa; box-shadow: none; }
+      .day-arrow { background: #1e1e22; color: #aaa; box-shadow: none; }
+      .day-arrow:active { background: #2a2a2e; }
+      .day-label { color: #f0ede6; }
+      .day-date { color: #555; }
+      .stats-bar .domains b { color: #f0ede6; }
+      .stats-bar .timer { color: #888; }
+      .act-btn { background: #1e1e22; color: #d1d5db; }
+      .act-btn:active { background: #2a2a2e; }
+      .act-btn.hint { background: rgba(180,83,9,0.15); color: #fbbf24; }
+      .win-card { background: #1a1a1e; }
+      .win-title { color: #f0ede6; }
+      .win-sub { color: #666; }
+      .win-stat { background: #252528; }
+      .win-stat-value { color: #f0ede6; }
+      .win-btn.sec { background: #252528; color: #d1d5db; }
+      .diff-badge.Easy   { background: rgba(22,163,74,0.15); }
+      .diff-badge.Medium { background: rgba(202,138,4,0.15); }
+      .diff-badge.Hard   { background: rgba(220,38,38,0.15); }
+      .diff-badge.Custom { background: rgba(124,58,237,0.15); }
+      .legend { color: #888; }
+      .leg-tap { color: #555; }
+      .how-to { background: #1e1e22; border-color: #2d2d32; }
+      .how-to summary { color: #ccc; }
+      .how-to p { color: #aaa; }
+      .how-to-rule { background: #252528 !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <button class="back-btn" onclick="window.history.back()" title="Back">&#8249;</button>
+    <h1>Nodal Domains</h1>
+  </header>
+
+  <details class="how-to">
+    <summary>&#9432; How to play</summary>
+    <div class="how-to-body">
+      <p>Color every cell blue or red so the grid has <strong>exactly N connected color regions</strong> (nodal domains). Each puzzle tells you the target N.</p>
+      <div class="how-to-rules">
+        <div class="how-to-rule"><span class="ri">👆</span><span>Tap any cell to cycle its color: uncolored → blue → red → uncolored.</span></div>
+        <div class="how-to-rule"><span class="ri">🔗</span><span>Two cells belong to the same domain when they share an edge and have the same color. The small number in each cell shows its domain ID.</span></div>
+        <div class="how-to-rule"><span class="ri">🔒</span><span>Locked seed cells are fixed — they show you where the puzzle begins.</span></div>
+        <div class="how-to-rule"><span class="ri">💡</span><span>Stuck? Use the Hint button to reveal one correct cell.</span></div>
+      </div>
+    </div>
+  </details>
+
+  <div class="day-nav">
+    <button class="day-arrow" id="prev-day-btn" onclick="goDay(-1)" title="Previous day">&#8249;</button>
+    <div class="day-info">
+      <span class="day-label" id="day-label"></span>
+      <span class="day-date" id="day-date"></span>
+    </div>
+    <span id="diff-badge" class="diff-badge"></span>
+    <button class="day-arrow" id="next-day-btn" onclick="goDay(1)" title="Next day">&#8250;</button>
+  </div>
+
+  <div class="stats-bar">
+    <span class="domains" id="stat-domains"></span>
+    <span class="timer" id="stat-timer">0:00</span>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="grid" id="game-grid"></div>
+  </div>
+
+  <div class="legend">
+    <span class="leg"><span class="swatch" style="background:#6699CC"></span>Blue</span>
+    <span class="leg"><span class="swatch" style="background:#CC6655"></span>Red</span>
+    <span class="leg"><span class="swatch" style="background:#E8E6DF;border:1px solid #ccc"></span>Uncolored</span>
+    <span class="leg-tap">tap to cycle</span>
+  </div>
+
+  <div class="actions">
+    <button class="act-btn" id="reset-btn" onclick="handleReset()">Reset</button>
+    <button class="act-btn hint" id="hint-btn" onclick="handleHint()">Hint</button>
+  </div>
+</div>
+
+<div class="overlay" id="win-overlay">
+  <div class="win-card">
+    <div class="win-head">
+      <div class="win-emoji">🎉</div>
+      <div class="win-title">Solved!</div>
+      <div class="win-sub" id="win-sub"></div>
+    </div>
+    <div class="win-stats">
+      <div class="win-stat"><div class="win-stat-label">Time</div><div class="win-stat-value" id="wt-time"></div></div>
+      <div class="win-stat"><div class="win-stat-label">Hints</div><div class="win-stat-value" id="wt-hints"></div></div>
+      <div class="win-stat"><div class="win-stat-label">Moves</div><div class="win-stat-value" id="wt-moves"></div></div>
+    </div>
+    <div class="win-actions">
+      <button class="win-btn sec" onclick="handleReset()">Play again</button>
+      <button class="win-btn pri" id="next-btn" onclick="handleNextPuzzle()"></button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confetti-wrap"></div>
+
+<script>
+// ─── Puzzle data ──────────────────────────────────────────────────────────────
+// Add new puzzles here. The date field controls when each puzzle becomes visible.
+// Puzzles are shown in date order; future dates are hidden from players.
+
+const PUZZLES = [
+  {
+    id: 1, name: 'Day 1', difficulty: 'Easy',
+    date: '2026-05-24',
+    rows: 4, cols: 4, target: 4,
+    solution: [
+      [0, 0, 1, 1],
+      [0, 1, 1, 0],
+      [1, 1, 0, 0],
+      [1, 0, 0, 1],
+    ],
+    seeds: {
+      '0,0': 0, '0,2': 1, '0,3': 1,
+      '1,1': 1,
+      '2,2': 0,
+      '3,0': 1, '3,3': 1,
+    },
+  },
+  {
+    id: 2, name: 'Day 2', difficulty: 'Medium',
+    date: '2026-05-25',
+    rows: 5, cols: 5, target: 5,
+    solution: [
+      [0, 0, 0, 1, 1],
+      [0, 1, 1, 1, 0],
+      [0, 1, 0, 0, 0],
+      [1, 1, 0, 1, 1],
+      [1, 0, 0, 1, 0],
+    ],
+    seeds: {
+      '0,3': 1,
+      '2,0': 0, '2,1': 1, '2,2': 0, '2,3': 0, '2,4': 0,
+      '3,1': 1,
+      '4,2': 0, '4,3': 1,
+    },
+  },
+  {
+    id: 3, name: 'Day 3', difficulty: 'Hard',
+    date: '2026-05-26',
+    rows: 5, cols: 6, target: 6,
+    solution: [
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 1, 0, 1],
+      [1, 0, 0, 0, 1, 1],
+      [1, 1, 0, 1, 0, 1],
+      [1, 1, 1, 1, 0, 0],
+    ],
+    seeds: {
+      '0,0': 0,
+      '1,3': 1, '1,4': 0, '1,5': 1,
+      '2,2': 0, '2,4': 1,
+      '3,4': 0, '3,5': 1,
+      '4,0': 1, '4,2': 1,
+    },
+  },
+  // ── Add future puzzles below ──────────────────────────────────────────────
+];
+
+// ─── Date helpers ─────────────────────────────────────────────────────────────
+
+function todayStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dy = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dy}`;
+}
+
+function fmtDisplayDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Only puzzles whose date <= today are visible
+const TODAY = todayStr();
+const availablePuzzles = PUZZLES
+  .filter(p => p.date <= TODAY)
+  .sort((a, b) => a.date.localeCompare(b.date));
+
+// ─── Game state ───────────────────────────────────────────────────────────────
+
+let pidx      = availablePuzzles.length - 1; // start on today's puzzle
+let grid      = [];
+let hinted    = new Set();
+let history   = [];
+let won       = false;
+let elapsed   = 0;
+let hintsUsed = 0;
+let moveCount = 0;
+let startTime = Date.now();
+let timerId   = null;
+
+// ─── Logic ────────────────────────────────────────────────────────────────────
+
+const DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+
+function getDomainMap(g, rows, cols) {
+  const map = Array.from({length: rows}, () => new Array(cols).fill(null));
+  let id = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (g[r][c] === -1 || map[r][c] !== null) continue;
+      const color = g[r][c];
+      const q = [[r, c]];
+      map[r][c] = id;
+      while (q.length) {
+        const [cr, cc] = q.shift();
+        for (const [dr, dc] of DIRS) {
+          const nr = cr+dr, nc = cc+dc;
+          if (nr>=0 && nr<rows && nc>=0 && nc<cols && g[nr][nc]===color && map[nr][nc]===null) {
+            map[nr][nc] = id; q.push([nr, nc]);
+          }
+        }
+      }
+      id++;
+    }
+  }
+  return map;
+}
+
+function countDomains(g, rows, cols) {
+  const vis = Array.from({length: rows}, () => new Array(cols).fill(false));
+  let n = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (g[r][c] === -1 || vis[r][c]) continue;
+      n++;
+      const color = g[r][c];
+      const q = [[r, c]];
+      vis[r][c] = true;
+      while (q.length) {
+        const [cr, cc] = q.shift();
+        for (const [dr, dc] of DIRS) {
+          const nr = cr+dr, nc = cc+dc;
+          if (nr>=0 && nr<rows && nc>=0 && nc<cols && g[nr][nc]===color && !vis[nr][nc]) {
+            vis[nr][nc] = true; q.push([nr, nc]);
+          }
+        }
+      }
+    }
+  }
+  return n;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+const BG = {
+  blue:     '#6699CC', red:     '#CC6655',
+  seedBlue: '#446699', seedRed: '#994433',
+  hintBlue: '#88BBDD', hintRed: '#DD9988',
+  none:     dark ? '#1e1e22' : '#E8E6DF',
+};
+
+const BORDER = {
+  blue: '#2E547A', red: '#7A3322',
+  none: dark ? '#2d2d32' : '#C0BEB8',
+};
+
+function cellBg(color, seeded, isHinted) {
+  if (color === 0) return seeded ? BG.seedBlue : isHinted ? BG.hintBlue : BG.blue;
+  if (color === 1) return seeded ? BG.seedRed  : isHinted ? BG.hintRed  : BG.red;
+  return BG.none;
+}
+
+function borderColor(color) {
+  return color === 0 ? BORDER.blue : color === 1 ? BORDER.red : BORDER.none;
+}
+
+function puzzle()  { return availablePuzzles[pidx]; }
+
+function initGrid(p) {
+  const g = Array.from({length: p.rows}, () => new Array(p.cols).fill(-1));
+  for (const [k, v] of Object.entries(p.seeds)) {
+    const [r, c] = k.split(',').map(Number);
+    g[r][c] = v;
+  }
+  return g;
+}
+
+function cloneGrid(g) { return g.map(r => [...r]); }
+
+function fmt(ms) {
+  const s = Math.floor(ms/1000), m = Math.floor(s/60);
+  return `${m}:${String(s%60).padStart(2,'0')}`;
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+
+function render() {
+  const p = puzzle();
+  const dmap  = getDomainMap(grid, p.rows, p.cols);
+  const doms  = countDomains(grid, p.rows, p.cols);
+  const full  = grid.every(row => row.every(v => v !== -1));
+  const match = full && doms === p.target;
+
+  // Day nav
+  const isToday = p.date === TODAY;
+  document.getElementById('day-label').textContent = isToday ? `Today — ${p.name}` : p.name;
+  document.getElementById('day-date').textContent  = fmtDisplayDate(p.date);
+  const badge = document.getElementById('diff-badge');
+  badge.textContent = p.difficulty;
+  badge.className = `diff-badge ${p.difficulty}`;
+  document.getElementById('prev-day-btn').disabled = pidx <= 0;
+  document.getElementById('next-day-btn').disabled = pidx >= availablePuzzles.length - 1;
+
+  // Stats
+  document.getElementById('stat-domains').innerHTML =
+    `Domains: <b${match?' class="match"':''}>${doms}</b> / Target: <b>${p.target}</b>`;
+  document.getElementById('stat-timer').textContent = fmt(elapsed);
+
+  // Grid sizing
+  const GAP = 4, MAX = 340;
+  const sz = Math.max(44, Math.min(72, Math.floor((MAX - (p.cols-1)*GAP) / p.cols)));
+  const gridEl = document.getElementById('game-grid');
+  gridEl.style.gridTemplateColumns = `repeat(${p.cols}, ${sz}px)`;
+  gridEl.style.gap = GAP + 'px';
+  gridEl.innerHTML = '';
+
+  for (let r = 0; r < p.rows; r++) {
+    for (let c = 0; c < p.cols; c++) {
+      const color   = grid[r][c];
+      const did     = dmap[r][c];
+      const key     = `${r},${c}`;
+      const seeded  = p.seeds[key] !== undefined;
+      const isHint  = hinted.has(key);
+      const bc      = borderColor(color);
+
+      const sT = r > 0         && did !== null && dmap[r-1][c] === did;
+      const sB = r < p.rows-1  && did !== null && dmap[r+1][c] === did;
+      const sL = c > 0         && did !== null && dmap[r][c-1] === did;
+      const sR = c < p.cols-1  && did !== null && dmap[r][c+1] === did;
+
+      const div = document.createElement('div');
+      div.className = 'cell' + (seeded ? ' seeded' : '');
+      div.style.cssText = [
+        `width:${sz}px`, `height:${sz}px`, `min-width:44px`, `min-height:44px`,
+        `background-color:${cellBg(color, seeded, isHint)}`,
+        `border-color:${bc}`,
+        `border-top-width:${sT?0:2}px`,
+        `border-bottom-width:${sB?0:2}px`,
+        `border-left-width:${sL?0:2}px`,
+        `border-right-width:${sR?0:2}px`,
+      ].join(';');
+
+      if (color !== -1 && did !== null) {
+        const span = document.createElement('span');
+        span.className = 'd-id';
+        span.textContent = did + 1;
+        div.appendChild(span);
+      }
+
+      if (seeded || isHint) {
+        const ico = document.createElement('span');
+        ico.className = 'c-icon';
+        ico.textContent = seeded ? '🔒' : '💡';
+        div.appendChild(ico);
+      }
+
+      if (!seeded && !won) {
+        div.addEventListener('click', () => tap(r, c));
+        div.addEventListener('touchend', e => { e.preventDefault(); tap(r, c); }, {passive: false});
+      }
+
+      gridEl.appendChild(div);
+    }
+  }
+
+  document.getElementById('hint-btn').disabled = won;
+}
+
+// ─── Handlers ─────────────────────────────────────────────────────────────────
+
+function tap(r, c) {
+  const p = puzzle(), key = `${r},${c}`;
+  if (p.seeds[key] !== undefined || won) return;
+  history = [...history.slice(-40), { grid: cloneGrid(grid), hinted: new Set(hinted) }];
+  moveCount++;
+  const cur = grid[r][c];
+  grid[r][c] = cur === -1 ? 0 : cur === 0 ? 1 : -1;
+  if (hinted.has(key)) { hinted = new Set(hinted); hinted.delete(key); }
+  checkWin(); render();
+}
+
+function handleHint() {
+  if (won) return;
+  const p = puzzle();
+  for (let r = 0; r < p.rows; r++) {
+    for (let c = 0; c < p.cols; c++) {
+      const key = `${r},${c}`;
+      if (p.seeds[key] !== undefined) continue;
+      if (grid[r][c] === p.solution[r][c]) continue;
+      history = [...history.slice(-40), { grid: cloneGrid(grid), hinted: new Set(hinted) }];
+      grid[r][c] = p.solution[r][c];
+      hinted = new Set([...hinted, key]);
+      hintsUsed++;
+      checkWin(); render();
+      return;
+    }
+  }
+}
+
+function handleReset() {
+  const p = puzzle();
+  grid = initGrid(p);
+  hinted = new Set(); history = [];
+  won = false; elapsed = 0;
+  hintsUsed = 0; moveCount = 0;
+  startTime = Date.now();
+  clearInterval(timerId);
+  timerId = setInterval(() => { if (!won) { elapsed = Date.now()-startTime; render(); } }, 1000);
+  document.getElementById('win-overlay').classList.remove('show');
+  document.getElementById('confetti-wrap').innerHTML = '';
+  render();
+}
+
+function goDay(delta) {
+  const next = pidx + delta;
+  if (next < 0 || next >= availablePuzzles.length) return;
+  pidx = next;
+  handleReset();
+}
+
+function handleNextPuzzle() {
+  if (pidx < availablePuzzles.length - 1) {
+    goDay(1);
+  } else {
+    document.getElementById('win-overlay').classList.remove('show');
+  }
+}
+
+// ─── Win ──────────────────────────────────────────────────────────────────────
+
+function checkWin() {
+  const p = puzzle();
+  const full = grid.every(row => row.every(v => v !== -1));
+  const doms = countDomains(grid, p.rows, p.cols);
+  if (full && doms === p.target && !won) {
+    won = true;
+    elapsed = Date.now() - startTime;
+    clearInterval(timerId);
+    setTimeout(showWin, 120);
+  }
+}
+
+function showWin() {
+  const p = puzzle();
+  const doms = countDomains(grid, p.rows, p.cols);
+  document.getElementById('win-sub').textContent = `${doms} domain${doms!==1?'s':''} — ${p.name}`;
+  document.getElementById('wt-time').textContent  = fmt(elapsed);
+  document.getElementById('wt-hints').textContent = hintsUsed;
+  document.getElementById('wt-moves').textContent = moveCount;
+  const hasNext = pidx < availablePuzzles.length - 1;
+  document.getElementById('next-btn').textContent = hasNext ? 'Next →' : 'Done!';
+  document.getElementById('win-overlay').classList.add('show');
+  spawnConfetti();
+}
+
+// ─── Confetti ─────────────────────────────────────────────────────────────────
+
+function spawnConfetti() {
+  const wrap = document.getElementById('confetti-wrap');
+  wrap.innerHTML = '';
+  const colors = ['#6699CC','#CC6655','#f0b429','#52b788','#9b8ecf','#e07aab','#f4a35a'];
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    const w = 4 + Math.random() * 7;
+    el.style.cssText = [
+      `left:${Math.random()*100}%`,
+      `width:${w}px`, `height:${w}px`,
+      `background:${colors[Math.floor(Math.random()*colors.length)]}`,
+      `border-radius:${Math.random()>.5?'50%':'2px'}`,
+      `animation-duration:${1.4+Math.random()*2}s`,
+      `animation-delay:${Math.random()*.6}s`,
+    ].join(';');
+    wrap.appendChild(el);
+  }
+  setTimeout(() => { wrap.innerHTML = ''; }, 4000);
+}
+
+// ─── No puzzles fallback ──────────────────────────────────────────────────────
+
+if (availablePuzzles.length === 0) {
+  document.querySelector('.app').innerHTML =
+    '<div style="padding:40px 24px;text-align:center;color:#888;font-size:15px;">' +
+    '🔒 No puzzles available yet. Check back tomorrow!</div>';
+} else {
+  handleReset();
+}
+</script>
+</body>
+</html>
