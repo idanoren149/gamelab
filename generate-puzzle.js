@@ -203,7 +203,7 @@ function makePuzzle(difficulty) {
     if (verif.timedOut || Object.keys(seeds).length >= maxSeeds) break;
     seeds = addBoundarySeeds(seeds, sol, p.rows, p.cols, 2);
   }
-  if (verif.count !== 1) return null;
+  if (verif.count > 1) return null;
   return { rows: p.rows, cols: p.cols, target, difficulty, solution: sol, seeds };
 }
 
