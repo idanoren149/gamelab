@@ -857,7 +857,7 @@
   {
     "id": 16,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -925,7 +925,7 @@
   {
     "id": 17,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "rejected",
     "rows": 4,
     "cols": 4,
     "target": 3,
@@ -968,7 +968,7 @@
   {
     "id": 18,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -1027,7 +1027,7 @@
   {
     "id": 19,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -1086,7 +1086,7 @@
   {
     "id": 20,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -1153,7 +1153,7 @@
   {
     "id": 21,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "rejected",
     "rows": 4,
     "cols": 4,
     "target": 3,
@@ -1198,7 +1198,7 @@
   {
     "id": 22,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -1257,7 +1257,7 @@
   {
     "id": 23,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -1317,7 +1317,7 @@
   {
     "id": 24,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -1386,7 +1386,7 @@
   {
     "id": 25,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "rejected",
     "rows": 4,
     "cols": 4,
     "target": 4,
@@ -1429,7 +1429,7 @@
   {
     "id": 26,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -1487,7 +1487,7 @@
   {
     "id": 27,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "rejected",
     "rows": 5,
     "cols": 5,
     "target": 4,
