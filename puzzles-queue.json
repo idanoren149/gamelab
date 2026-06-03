@@ -163,7 +163,7 @@
   {
     "id": 4,
     "difficulty": "Hard",
-    "status": "approved",
+    "status": "published",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -230,7 +230,7 @@
   {
     "id": 5,
     "difficulty": "Easy",
-    "status": "approved",
+    "status": "published",
     "rows": 4,
     "cols": 4,
     "target": 5,
@@ -335,7 +335,7 @@
   {
     "id": 7,
     "difficulty": "Medium",
-    "status": "approved",
+    "status": "published",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -396,7 +396,7 @@
   {
     "id": 8,
     "difficulty": "Hard",
-    "status": "approved",
+    "status": "published",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -465,7 +465,7 @@
   {
     "id": 9,
     "difficulty": "Easy",
-    "status": "approved",
+    "status": "published",
     "rows": 4,
     "cols": 4,
     "target": 3,
@@ -627,7 +627,7 @@
   {
     "id": 12,
     "difficulty": "Hard",
-    "status": "approved",
+    "status": "published",
     "rows": 5,
     "cols": 6,
     "target": 5,
