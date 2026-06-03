@@ -163,7 +163,7 @@
   {
     "id": 4,
     "difficulty": "Hard",
-    "status": "approved",
+    "status": "published",
     "rows": 5,
     "cols": 6,
     "target": 6,
