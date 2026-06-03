@@ -1547,7 +1547,7 @@
   {
     "id": 28,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 6,
@@ -1605,7 +1605,7 @@
   {
     "id": 29,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "approved",
     "rows": 4,
     "cols": 4,
     "target": 4,
@@ -1645,7 +1645,7 @@
   {
     "id": 30,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 7,
