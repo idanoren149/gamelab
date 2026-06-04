@@ -464,7 +464,7 @@
   {
     "id": 10,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -568,7 +568,7 @@
   {
     "id": 12,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -664,7 +664,7 @@
   {
     "id": 14,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -715,7 +715,7 @@
   {
     "id": 15,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -768,7 +768,7 @@
   {
     "id": 16,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 5,
