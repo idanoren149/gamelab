@@ -1,0 +1,29 @@
+name: Publish Approved Parity Puzzles
+on:
+  push:
+    paths:
+      - 'parity/puzzles-queue.json'
+jobs:
+  publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Publish approved puzzles
+        run: node parity/publish-parity.cjs
+      - name: Commit if files changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add parity/parity.html parity/puzzles-queue.json
+          if git diff --staged --quiet; then
+            echo "No approved puzzles. Nothing to commit."
+          else
+            git commit -m "chore: publish approved parity puzzles"
+            git push
+          fi
