@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Parity — Review</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #FAF9F6; color: #1a1a1a; min-height: 100vh;
+      -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+    }
+    .app { max-width: 440px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 40px; }
+    h1 { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+    .subtitle { font-size: 12px; color: #888; margin-top: 2px; }
+    .card { background: white; border-radius: 16px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 10px; }
+    .card-title { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.06em; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 12px; font-weight: 600; color: #777; }
+    .field input { padding: 8px 10px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 14px; background: #fafafa; color: #111; width: 100%; font-family: monospace; }
+    .field input:focus { outline: none; border-color: #16a34a; }
+    .hint { font-size: 11px; color: #aaa; }
+    .btn { padding: 10px 16px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.1s; }
+    .btn:disabled { opacity: 0.4; cursor: default; }
+    .btn-primary   { background: #16a34a; color: white; }
+    .btn-primary:not(:disabled):active   { background: #15803d; }
+    .btn-secondary { background: #f3f4f6; color: #374151; }
+    .btn-secondary:not(:disabled):active { background: #e5e7eb; }
+    .btn-approve { background: #dcfce7; color: #16a34a; }
+    .btn-approve:not(:disabled):active { background: #bbf7d0; }
+    .btn-reject  { background: #fee2e2; color: #dc2626; }
+    .btn-reject:not(:disabled):active  { background: #fecaca; }
+    .row { display: flex; gap: 8px; }
+    .row .btn { flex: 1; }
+    .counter { font-size: 13px; color: #888; text-align: center; line-height: 1.5; }
+    .counter b { color: #111; }
+    .puzzle-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: #555; }
+    .shape-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+    .shape-badge.staircase      { background: #dbeafe; color: #1d4ed8; }
+    .shape-badge.diamond        { background: #ede9fe; color: #6d28d9; }
+    .shape-badge.wide-staircase { background: #fef3c7; color: #b45309; }
+    .grid-wrap { display: flex; justify-content: center; padding: 4px 0; overflow-x: auto; }
+    .rule-status { display: flex; flex-direction: column; gap: 4px; }
+    .rule-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 10px; border-radius: 8px; background: #f9fafb; font-size: 12px; }
+    .rule-label { font-weight: 600; color: #555; }
+    .rule-state { font-weight: 700; color: #9ca3af; }
+    .rule-state.ok       { color: #16a34a; }
+    .rule-state.violated { color: #dc2626; }
+    .msg { font-size: 13px; text-align: center; padding: 4px 0; min-height: 20px; }
+    .msg.error   { color: #dc2626; }
+    .msg.success { color: #16a34a; }
+    .hidden { display: none !important; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #111113; color: #e8e6df; }
+      .card { background: #1a1a1e; box-shadow: none; }
+      .card-title { color: #555; }
+      .field label { color: #777; }
+      .field input { background: #252528; border-color: #333; color: #e8e6df; }
+      .btn-secondary { background: #1e1e22; color: #d1d5db; }
+      .counter b { color: #f0ede6; }
+      .rule-row { background: #252528; }
+      .rule-label { color: #9ca3af; }
+      .hint { color: #555; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Parity &#8212; Review</h1>
+    <div class="subtitle">Approve or reject daily puzzle candidates</div>
+  </header>
+
+  <div class="card" id="token-card">
+    <div class="card-title">GitHub Access</div>
+    <div class="field">
+      <label for="token-in">Personal Access Token</label>
+      <input type="password" id="token-in" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+      <span class="hint">Needs <b>public_repo</b> scope. Saved in your browser only.</span>
+    </div>
+    <button class="btn btn-primary" onclick="saveToken()">Save &amp; load queue</button>
+    <div id="token-msg" class="msg"></div>
+  </div>
+
+  <div class="card hidden" id="review-card">
+    <div class="card-title">Review Puzzle</div>
+    <div class="counter" id="counter"></div>
+    <div class="puzzle-meta" id="puzzle-meta"></div>
+    <div class="rule-status">
+      <div class="rule-row"><span class="rule-label">Sum = 0</span><span class="rule-state" id="rs-sum">&#8212;</span></div>
+      <div class="rule-row"><span class="rule-label">Row partial sums &#8805; &#8722;1</span><span class="rule-state" id="rs-row">&#8212;</span></div>
+      <div class="rule-row"><span class="rule-label">Col partial sums &#8805; &#8722;1</span><span class="rule-state" id="rs-col">&#8212;</span></div>
+    </div>
+    <div class="grid-wrap" id="grid-wrap"></div>
+    <button class="btn btn-secondary" onclick="resetPuzzle()" style="align-self:flex-end;padding:6px 12px;font-size:12px">Reset</button>
+    <div class="row">
+      <button class="btn btn-approve"   onclick="decide('approved')">&#10003; Approve</button>
+      <button class="btn btn-reject"    onclick="decide('rejected')">&#10007; Reject</button>
+      <button class="btn btn-secondary" onclick="decide('skip')">Skip &#8594;</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="done-card">
+    <div class="card-title">Session Complete</div>
+    <div class="counter" id="done-counter"></div>
+  </div>
+
+  <div class="card hidden" id="save-card">
+    <div class="card-title">Save Decisions</div>
+    <button class="btn btn-primary" id="save-btn" onclick="saveDecisions()">Save &amp; Publish to GitHub</button>
+    <div id="save-msg" class="msg"></div>
+  </div>
+</div>
+
+<script>
+const OWNER = 'idanoren149';
+const REPO  = 'gamelab';
+const FILE  = 'parity/puzzles-queue.json';
+const API   = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE}`;
+
+const SHAPES = {
+  'staircase':      [{o:0,l:6},{o:0,l:6},{o:0,l:4},{o:0,l:4},{o:0,l:2},{o:0,l:2}],
+  'diamond':        [{o:2,l:2},{o:1,l:4},{o:0,l:6},{o:0,l:6},{o:1,l:4},{o:2,l:2}],
+  'wide-staircase': [{o:0,l:8},{o:0,l:8},{o:0,l:6},{o:0,l:6},{o:0,l:4},{o:0,l:4},{o:0,l:2},{o:0,l:2}],
+};
+
+const SHAPE_NAMES = { staircase: 'Staircase', diamond: 'Diamond', 'wide-staircase': 'Wide Staircase' };
+const C = { empty: '#E8E6DF', plus: '#16A34A', minus: '#7C3AED' };
+const GAP = 4, MAX_GRID = 340;
+
+function getColumns(shape) {
+  const maxCol = Math.max(...shape.map(r => r.o + r.l - 1));
+  const cols = [];
+  for (let c = 0; c <= maxCol; c++) {
+    const col = [];
+    for (let r = 0; r < shape.length; r++) {
+      const { o, l } = shape[r];
+      if (c >= o && c < o + l) col.push([r, c]);
+    }
+    if (col.length > 0) cols.push(col);
+  }
+  return cols;
+}
+
+function sequenceViolated(vals) {
+  let sum = 0;
+  for (const v of vals) { if (v === 0) return false; sum += v; if (sum < -1) return true; }
+  return sum !== 0;
+}
+
+function getViolatingCells(grid, shape) {
+  const violating = new Set();
+  for (let r = 0; r < shape.length; r++) {
+    const { o, l } = shape[r];
+    const keys = [], vals = [];
+    for (let c = o; c < o + l; c++) { keys.push(`${r},${c}`); vals.push(grid[`${r},${c}`] || 0); }
+    if (sequenceViolated(vals)) keys.forEach(k => violating.add(k));
+  }
+  for (const col of getColumns(shape)) {
+    const keys = col.map(([r, c]) => `${r},${c}`);
+    const vals = keys.map(k => grid[k] || 0);
+    if (sequenceViolated(vals)) keys.forEach(k => violating.add(k));
+  }
+  return violating;
+}
+
+function getRuleStatus(grid, shape) {
+  const cols = getColumns(shape);
+  let sumZeroV=false, sumZeroOk=true, rowPartialV=false, rowPartialOk=true, colPartialV=false, colPartialOk=true;
+  for (let r = 0; r < shape.length; r++) {
+    const { o, l } = shape[r];
+    const vals = [];
+    for (let c = o; c < o + l; c++) vals.push(grid[`${r},${c}`] || 0);
+    const allFilled = vals.every(v => v !== 0);
+    if (!allFilled) { sumZeroOk = false; rowPartialOk = false; }
+    let sum = 0, partial = false;
+    for (const v of vals) { if (v===0) break; sum+=v; if (sum<-1){partial=true;break;} }
+    if (partial) { rowPartialV=true; rowPartialOk=false; }
+    if (allFilled && !partial && sum!==0) { sumZeroV=true; sumZeroOk=false; }
+  }
+  for (const col of cols) {
+    const vals = col.map(([r,c]) => grid[`${r},${c}`] || 0);
+    const allFilled = vals.every(v => v !== 0);
+    if (!allFilled) { sumZeroOk=false; colPartialOk=false; }
+    let sum=0, partial=false;
+    for (const v of vals) { if (v===0) break; sum+=v; if (sum<-1){partial=true;break;} }
+    if (partial) { colPartialV=true; colPartialOk=false; }
+    if (allFilled && !partial && sum!==0) { sumZeroV=true; sumZeroOk=false; }
+  }
+  return {
+    sumZero:    sumZeroV    ? 'violated' : sumZeroOk    ? 'ok' : 'pending',
+    rowPartial: rowPartialV ? 'violated' : rowPartialOk ? 'ok' : 'pending',
+    colPartial: colPartialV ? 'violated' : colPartialOk ? 'ok' : 'pending',
+  };
+}
+
+function buildGrid(puzzle) {
+  const grid = {}, shape = SHAPES[puzzle.shape];
+  for (let r = 0; r < shape.length; r++) {
+    const { o, l } = shape[r];
+    for (let c = o; c < o + l; c++) {
+      const key = `${r},${c}`;
+      grid[key] = puzzle.clues[key] !== undefined ? puzzle.clues[key] : 0;
+    }
+  }
+  return grid;
+}
+
+function getToken() { return localStorage.getItem('parity_review_token') || ''; }
+
+function saveToken() {
+  const tok = document.getElementById('token-in').value.trim();
+  if (!tok) { setMsg('token-msg', 'Please enter a token.', true); return; }
+  localStorage.setItem('parity_review_token', tok);
+  loadQueue();
+}
+
+function setMsg(id, text, isError) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg' + (isError ? ' error' : ' success');
+}
+
+let queue = [], pending = [], pidx = 0, fileSha = '';
+let session = { approved: 0, rejected: 0 };
+let grid = {};
+
+async function loadQueue() {
+  setMsg('token-msg', 'Loading...', false);
+  try {
+    const res = await fetch(API, {
+      headers: { Authorization: `token ${getToken()}`, Accept: 'application/vnd.github.v3+json' },
+    });
+    if (!res.ok) throw new Error(`GitHub API error ${res.status}: ${res.statusText}`);
+    const meta = await res.json();
+    fileSha = meta.sha;
+    queue   = JSON.parse(atob(meta.content.replace(/\n/g, '')));
+    pending = queue.map((p, i) => ({ ...p, _qi: i })).filter(p => p.status === 'pending');
+    pidx = 0; session = { approved: 0, rejected: 0 };
+    document.getElementById('token-card').classList.add('hidden');
+    document.getElementById('save-card').classList.remove('hidden');
+    showPuzzle();
+  } catch (e) {
+    setMsg('token-msg', `Error: ${e.message}`, true);
+  }
+}
+
+function showPuzzle() {
+  updateCounter();
+  if (pidx >= pending.length) {
+    document.getElementById('review-card').classList.add('hidden');
+    document.getElementById('done-card').classList.remove('hidden');
+    if (pending.length === 0) {
+      document.getElementById('done-counter').innerHTML = 'Queue is empty — no pending puzzles to review.';
+    } else {
+      document.getElementById('done-counter').innerHTML =
+        `All <b>${pending.length}</b> pending puzzles reviewed.<br>` +
+        `<b style="color:#16a34a">${session.approved}</b> approved &nbsp;` +
+        `<b style="color:#dc2626">${session.rejected}</b> rejected &nbsp;` +
+        `${pending.length - session.approved - session.rejected} skipped`;
+    }
+    return;
+  }
+  const p = pending[pidx];
+  grid = buildGrid(p);
+  document.getElementById('puzzle-meta').innerHTML =
+    `<span class="shape-badge ${p.shape}">${SHAPE_NAMES[p.shape]}</span>` +
+    `<span>${Object.keys(p.clues).length} clues</span>`;
+  document.getElementById('review-card').classList.remove('hidden');
+  renderGrid(p);
+  updateRuleStatus(p);
+}
+
+function renderGrid(p) {
+  const shape = SHAPES[p.shape];
+  const maxLen = Math.max(...shape.map(r => r.l));
+  const cellSize = Math.max(40, Math.min(68, Math.floor((MAX_GRID - (maxLen - 1) * GAP) / maxLen)));
+  const violating = getViolatingCells(grid, shape);
+  const wrap = document.getElementById('grid-wrap');
+  wrap.innerHTML = '';
+  const container = document.createElement('div');
+  container.style.cssText = `display:flex;flex-direction:column;gap:${GAP}px`;
+  for (let r = 0; r < shape.length; r++) {
+    const { o, l } = shape[r];
+    const rowEl = document.createElement('div');
+    rowEl.style.cssText = `display:flex;gap:${GAP}px;margin-left:${o * (cellSize + GAP)}px`;
+    for (let i = 0; i < l; i++) {
+      const c = o + i, key = `${r},${c}`;
+      const val = grid[key] || 0;
+      const isClue = p.clues[key] !== undefined;
+      const isViolating = violating.has(key) && val !== 0;
+      const cell = document.createElement('div');
+      cell.style.cssText = [
+        `width:${cellSize}px`, `height:${cellSize}px`, `min-width:40px`, `min-height:40px`,
+        `background-color:${val===1?C.plus:val===-1?C.minus:C.empty}`,
+        `border-radius:6px`, `position:relative`,
+        `display:flex`, `align-items:center`, `justify-content:center`,
+        `cursor:${isClue?'default':'pointer'}`,
+        `user-select:none`, `-webkit-user-select:none`,
+        `border:2px solid ${isViolating?'#DC2626':'transparent'}`,
+        `transition:background-color 0.1s ease`, `flex-shrink:0`,
+      ].join(';');
+      if (val !== 0) {
+        const label = document.createElement('span');
+        label.style.cssText = `font-size:${Math.max(11,Math.floor(cellSize*0.28))}px;font-weight:800;color:white;user-select:none;line-height:1`;
+        label.textContent = val === 1 ? '+1' : '−1';
+        cell.appendChild(label);
+      }
+      if (isClue && val !== 0) {
+        const dot = document.createElement('div');
+        dot.style.cssText = 'position:absolute;bottom:4px;right:4px;width:6px;height:6px;border-radius:50%;background-color:rgba(255,255,255,0.75);pointer-events:none';
+        cell.appendChild(dot);
+      }
+      if (!isClue) {
+        cell.addEventListener('click', () => handleTap(r, c));
+        cell.addEventListener('touchend', e => { e.preventDefault(); handleTap(r, c); }, { passive: false });
+      }
+      rowEl.appendChild(cell);
+    }
+    container.appendChild(rowEl);
+  }
+  wrap.appendChild(container);
+}
+
+function updateRuleStatus(p) {
+  const status = getRuleStatus(grid, SHAPES[p.shape]);
+  function setRule(id, state) {
+    const el = document.getElementById(id);
+    el.className = 'rule-state' + (state !== 'pending' ? ' ' + state : '');
+    el.textContent = state === 'ok' ? '✓ OK' : state === 'violated' ? '✗ Violated' : '—';
+  }
+  setRule('rs-sum', status.sumZero);
+  setRule('rs-row', status.rowPartial);
+  setRule('rs-col', status.colPartial);
+}
+
+function updateCounter() {
+  document.getElementById('counter').innerHTML =
+    `Puzzle <b>${Math.min(pidx+1,pending.length)}</b> of <b>${pending.length}</b> pending &nbsp;&middot;&nbsp; ` +
+    `<b style="color:#16a34a">${session.approved}</b> approved &nbsp;` +
+    `<b style="color:#dc2626">${session.rejected}</b> rejected`;
+}
+
+function handleTap(r, c) {
+  const p = pending[pidx], key = `${r},${c}`;
+  const cur = grid[key] || 0;
+  grid[key] = cur === 0 ? 1 : cur === 1 ? -1 : 0;
+  renderGrid(p); updateRuleStatus(p);
+}
+
+function resetPuzzle() {
+  const p = pending[pidx];
+  grid = buildGrid(p);
+  renderGrid(p); updateRuleStatus(p);
+}
+
+function decide(action) {
+  if (action !== 'skip') {
+    queue[pending[pidx]._qi].status = action;
+    if (action === 'approved') session.approved++;
+    if (action === 'rejected') session.rejected++;
+  }
+  pidx++;
+  showPuzzle();
+}
+
+async function saveDecisions() {
+  const btn = document.getElementById('save-btn');
+  if (session.approved + session.rejected === 0) {
+    setMsg('save-msg', 'Nothing to save — no puzzles were approved or rejected.', false);
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Saving...';
+  setMsg('save-msg', '', false);
+  try {
+    const body = JSON.stringify({
+      message: `review: ${session.approved} approved, ${session.rejected} rejected parity puzzles`,
+      content: btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(queue, null, 2)))),
+      sha: fileSha,
+    });
+    const res = await fetch(API, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${getToken()}`,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body,
+    });
+    if (res.status === 401) {
+      document.getElementById('token-card').classList.remove('hidden');
+      document.getElementById('save-card').classList.add('hidden');
+      setMsg('token-msg', 'Token expired or invalid. Please enter a new token.', true);
+      btn.disabled = false; btn.textContent = 'Save & Publish to GitHub';
+      return;
+    }
+    if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.statusText); }
+    const data = await res.json();
+    fileSha = data.content.sha;
+    const approvedTotal = queue.filter(p => p.status === 'approved').length;
+    setMsg('save-msg', `Saved! ${approvedTotal} puzzle(s) queued for publishing. Workflow will run in ~1 min.`, false);
+    btn.textContent = 'Saved ✓';
+  } catch (e) {
+    setMsg('save-msg', `Error: ${e.message}`, true);
+    btn.disabled = false; btn.textContent = 'Save & Publish to GitHub';
+  }
+}
+
+const stored = getToken();
+if (stored) { document.getElementById('token-in').value = stored; loadQueue(); }
+</script>
+</body>
+</html>
