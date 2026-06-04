@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Parity — Daily</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #FAF9F6; color: #1a1a1a; min-height: 100vh;
+      -webkit-font-smoothing: antialiased; overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .app {
+      max-width: 440px; margin: 0 auto; display: flex; flex-direction: column;
+      min-height: 100vh; padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    .header { display: flex; align-items: center; gap: 12px; padding: 16px 16px 8px; }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 10px; border: none;
+      background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.12); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #555; font-size: 18px; line-height: 1; flex-shrink: 0;
+    }
+    .back-btn:active { background: #eee; }
+    h1 { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; color: #111; flex: 1; }
+    .timer { font-size: 13px; color: #888; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+    .day-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 2px 16px 8px; gap: 8px;
+    }
+    .day-arrow {
+      width: 32px; height: 32px; border: none; border-radius: 8px;
+      background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.10); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #555; flex-shrink: 0; transition: background 0.1s;
+    }
+    .day-arrow:active { background: #eee; }
+    .day-arrow:disabled { opacity: 0.3; cursor: default; }
+    .day-info { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .day-label { font-size: 14px; font-weight: 800; color: #111; }
+    .day-date  { font-size: 11px; color: #aaa; }
+    .today-btn {
+      padding: 4px 10px; border: none; border-radius: 8px;
+      background: #1A6FC4; color: white; font-size: 12px; font-weight: 700;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .today-btn:active { background: #155FA0; }
+    .grid-wrap { display: flex; justify-content: center; padding: 0 16px 16px; width: 100%; overflow-x: auto; }
+    .rules { display: flex; flex-direction: column; gap: 6px; padding: 0 16px 12px; }
+    .rule-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 12px; border-radius: 10px; background: #f3f4f6; font-size: 12px;
+    }
+    .rule-label { font-weight: 600; color: #555; }
+    .rule-state { font-weight: 700; color: #9ca3af; }
+    .rule-state.ok       { color: #16a34a; }
+    .rule-state.violated { color: #dc2626; }
+    .actions { display: flex; justify-content: center; gap: 8px; padding: 0 16px 32px; }
+    .act-btn {
+      flex: 1; min-width: 80px; max-width: 100px; padding: 10px 0;
+      border-radius: 12px; border: none; font-size: 14px; font-weight: 600;
+      cursor: pointer; background: #f3f4f6; color: #374151; transition: background 0.1s;
+    }
+    .act-btn:active { background: #e5e7eb; }
+    .act-btn:disabled { opacity: 0.35; cursor: default; }
+    .overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.40);
+      z-index: 40; align-items: center; justify-content: center;
+    }
+    .overlay.show { display: flex; }
+    .win-card {
+      background: white; border-radius: 20px; padding: 24px; margin: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.28); width: 100%; max-width: 320px;
+      animation: scaleIn 0.25s ease-out;
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+    .win-head { text-align: center; margin-bottom: 16px; }
+    .win-emoji { font-size: 40px; margin-bottom: 2px; }
+    .win-title { font-size: 22px; font-weight: 900; color: #111; }
+    .win-sub { font-size: 12px; color: #aaa; margin-top: 2px; }
+    .win-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .win-stat { display: flex; flex-direction: column; align-items: center; padding: 10px; border-radius: 12px; background: #f9fafb; }
+    .win-stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; margin-bottom: 2px; }
+    .win-stat-value { font-size: 20px; font-weight: 900; color: #111; }
+    .win-actions { display: flex; gap: 8px; }
+    .win-btn { flex: 1; padding: 10px 0; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .win-btn.sec { background: #f3f4f6; color: #374151; }
+    .win-btn.sec:active { background: #e5e7eb; }
+    .win-btn.pri { background: #1A6FC4; color: white; }
+    .win-btn.pri:active { background: #155FA0; }
+    .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
+    .cp { position: absolute; animation: fall linear forwards; }
+    @keyframes fall {
+      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(105vh) rotate(740deg); opacity: 0.4; }
+    }
+    .no-puzzles {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 32px; text-align: center; color: #888; gap: 12px;
+    }
+    .no-puzzles h2 { font-size: 18px; font-weight: 700; color: #555; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #111113; color: #e8e6df; }
+      h1 { color: #f0ede6; }
+      .back-btn { background: #1e1e22; color: #aaa; box-shadow: none; }
+      .back-btn:active { background: #2a2a2e; }
+      .day-arrow { background: #1e1e22; color: #aaa; box-shadow: none; }
+      .day-arrow:active { background: #2a2a2e; }
+      .day-label { color: #f0ede6; }
+      .timer { color: #666; }
+      .rule-row { background: #1e1e22; }
+      .rule-label { color: #9ca3af; }
+      .act-btn { background: #1e1e22; color: #d1d5db; }
+      .act-btn:active { background: #2a2a2e; }
+      .win-card { background: #1a1a1e; }
+      .win-title { color: #f0ede6; }
+      .win-sub { color: #666; }
+      .win-stat { background: #252528; }
+      .win-stat-value { color: #f0ede6; }
+      .win-btn.sec { background: #252528; color: #d1d5db; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <button class="back-btn" onclick="history.back()" aria-label="Back">&#8592;</button>
+    <h1>Parity</h1>
+    <span class="timer" id="timer">0:00</span>
+  </header>
+
+  <div class="day-nav">
+    <button class="day-arrow" id="prev-btn" onclick="goDay(-1)" aria-label="Previous puzzle">&#8249;</button>
+    <div class="day-info">
+      <span class="day-label" id="day-label">—</span>
+      <span class="day-date"  id="day-date">—</span>
+    </div>
+    <button class="today-btn" onclick="goToday()">Today</button>
+    <button class="day-arrow" id="next-btn" onclick="goDay(1)" aria-label="Next puzzle">&#8250;</button>
+  </div>
+
+  <div class="grid-wrap" id="grid-wrap"></div>
+
+  <div class="rules">
+    <div class="rule-row">
+      <span class="rule-label">Sum = 0</span>
+      <span class="rule-state" id="rule-sum">—</span>
+    </div>
+    <div class="rule-row">
+      <span class="rule-label">Row partial sums &#8805; &#8722;1</span>
+      <span class="rule-state" id="rule-row">—</span>
+    </div>
+    <div class="rule-row">
+      <span class="rule-label">Col partial sums &#8805; &#8722;1</span>
+      <span class="rule-state" id="rule-col">—</span>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="act-btn" id="undo-btn" onclick="handleUndo()" disabled>Undo</button>
+    <button class="act-btn" onclick="handleReset()">Reset</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="win-card">
+    <div class="win-head">
+      <div class="win-emoji">&#127881;</div>
+      <div class="win-title">Solved!</div>
+      <div class="win-sub" id="win-sub"></div>
+    </div>
+    <div class="win-stats">
+      <div class="win-stat"><div class="win-stat-label">Time</div><div class="win-stat-value" id="win-time">—</div></div>
+      <div class="win-stat"><div class="win-stat-label">Moves</div><div class="win-stat-value" id="win-moves">—</div></div>
+      <div class="win-stat"><div class="win-stat-label">Undos</div><div class="win-stat-value" id="win-undos">—</div></div>
+    </div>
+    <div class="win-actions">
+      <button class="win-btn sec" onclick="handleReset()">Play again</button>
+      <button class="win-btn pri" id="win-next-btn" onclick="goWinNext()">Next &#8250;</button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confetti-wrap"></div>
+
+<script>
+const PUZZLES = [
+  {
+    id: 1, name: 'Day 1',
+    date: '2026-05-26',
+    shape: 'staircase',
+    clues:    { '5,1': 1, '3,0': 1, '2,3': 1, '1,1': -1, '0,2': -1, '1,4': 1 },
+    solution: { '0,0': -1, '0,1': 1, '0,2': -1, '0,3': 1, '0,4': -1, '0,5': 1, '1,0': 1, '1,1': -1, '1,2': 1, '1,3': -1, '1,4': 1, '1,5': -1, '2,0': -1, '2,1': 1, '2,2': -1, '2,3': 1, '3,0': 1, '3,1': -1, '3,2': 1, '3,3': -1, '4,0': 1, '4,1': -1, '5,0': -1, '5,1': 1 },
+  },
+  {
+    id: 2, name: 'Day 2',
+    date: '2026-05-27',
+    shape: 'diamond',
+    clues:    { '2,1': -1, '2,2': -1, '0,2': 1 },
+    solution: { '0,2': 1, '0,3': -1, '1,1': 1, '1,2': -1, '1,3': 1, '1,4': -1, '2,0': 1, '2,1': -1, '2,2': -1, '2,3': 1, '2,4': 1, '2,5': -1, '3,0': -1, '3,1': 1, '3,2': 1, '3,3': -1, '3,4': -1, '3,5': 1, '4,1': -1, '4,2': 1, '4,3': -1, '4,4': 1, '5,2': -1, '5,3': 1 },
+  },
+  {
+    id: 3, name: 'Day 3',
+    date: '2026-05-28',
+    shape: 'diamond',
+    clues:    { '4,3': 1, '2,5': -1, '3,2': 1 },
+    solution: { '0,2': -1, '0,3': 1, '1,1': -1, '1,2': 1, '1,3': -1, '1,4': 1, '2,0': -1, '2,1': 1, '2,2': -1, '2,3': 1, '2,4': 1, '2,5': -1, '3,0': 1, '3,1': -1, '3,2': 1, '3,3': -1, '3,4': -1, '3,5': 1, '4,1': 1, '4,2': -1, '4,3': 1, '4,4': -1, '5,2': 1, '5,3': -1 },
+  },
+  {
+    id: 4, name: 'Day 4',
+    date: '2026-05-29',
+    shape: 'staircase',
+    clues:    { '1,3': -1, '0,1': -1, '3,3': -1, '3,1': -1, '1,4': -1, '5,1': -1 },
+    solution: { '0,0': 1, '0,1': -1, '0,2': -1, '0,3': 1, '0,4': 1, '0,5': -1, '1,0': -1, '1,1': 1, '1,2': 1, '1,3': -1, '1,4': -1, '1,5': 1, '2,0': -1, '2,1': 1, '2,2': -1, '2,3': 1, '3,0': 1, '3,1': -1, '3,2': 1, '3,3': -1, '4,0': -1, '4,1': 1, '5,0': 1, '5,1': -1 },
+  },
+  {
+    id: 5, name: 'Day 5',
+    date: '2026-05-30',
+    shape: 'diamond',
+    clues:    { '3,3': -1, '2,1': 1, '1,4': -1, '1,3': -1 },
+    solution: { '0,2': -1, '0,3': 1, '1,1': 1, '1,2': 1, '1,3': -1, '1,4': -1, '2,0': -1, '2,1': 1, '2,2': -1, '2,3': 1, '2,4': 1, '2,5': -1, '3,0': 1, '3,1': -1, '3,2': 1, '3,3': -1, '3,4': -1, '3,5': 1, '4,1': -1, '4,2': 1, '4,3': -1, '4,4': 1, '5,2': -1, '5,3': 1 },
+  },
+  {
+    id: 6, name: 'Day 6',
+    date: '2026-05-31',
+    shape: 'diamond',
+    clues:    { '3,0': -1, '0,2': 1, '1,2': 1 },
+    solution: { '0,2': 1, '0,3': -1, '1,1': -1, '1,2': 1, '1,3': 1, '1,4': -1, '2,0': 1, '2,1': 1, '2,2': -1, '2,3': -1, '2,4': 1, '2,5': -1, '3,0': -1, '3,1': 1, '3,2': -1, '3,3': 1, '3,4': -1, '3,5': 1, '4,1': -1, '4,2': 1, '4,3': -1, '4,4': 1, '5,2': -1, '5,3': 1 },
+  },
+  {
+    id: 7, name: 'Day 7',
+    date: '2026-06-01',
+    shape: 'staircase',
+    clues:    { '1,1': 1, '1,3': 1, '3,2': 1, '3,0': 1, '5,0': 1, '0,4': 1 },
+    solution: { '0,0': 1, '0,1': -1, '0,2': 1, '0,3': -1, '0,4': 1, '0,5': -1, '1,0': -1, '1,1': 1, '1,2': -1, '1,3': 1, '1,4': -1, '1,5': 1, '2,0': -1, '2,1': 1, '2,2': -1, '2,3': 1, '3,0': 1, '3,1': -1, '3,2': 1, '3,3': -1, '4,0': -1, '4,1': 1, '5,0': 1, '5,1': -1 },
+  },
+  {
+    id: 8, name: 'Day 8',
+    date: '2026-06-02',
+    shape: 'wide-staircase',
+    clues:    { '3,0': 1, '7,0': -1, '3,4': 1, '0,6': 1, '1,0': 1, '2,2': 1, '1,4': -1, '5,1': -1, '5,2': 1, '1,2': 1 },
+    solution: { '0,0': -1, '0,1': 1, '0,2': -1, '0,3': 1, '0,4': 1, '0,5': -1, '0,6': 1, '0,7': -1, '1,0': 1, '1,1': -1, '1,2': 1, '1,3': -1, '1,4': -1, '1,5': 1, '1,6': -1, '1,7': 1, '2,0': -1, '2,1': 1, '2,2': 1, '2,3': -1, '2,4': -1, '2,5': 1, '3,0': 1, '3,1': -1, '3,2': -1, '3,3': 1, '3,4': 1, '3,5': -1, '4,0': -1, '4,1': 1, '4,2': -1, '4,3': 1, '5,0': 1, '5,1': -1, '5,2': 1, '5,3': -1, '6,0': 1, '6,1': -1, '7,0': -1, '7,1': 1 },
+  },
+  {
+    id: 9, name: 'Day 9',
+    date: '2026-06-03',
+    shape: 'staircase',
+    clues:    { '3,1': -1, '4,1': 1, '0,2': 1, '3,3': -1, '0,5': -1, '0,0': 1 },
+    solution: { '0,0': 1, '0,1': -1, '0,2': 1, '0,3': -1, '0,4': 1, '0,5': -1, '1,0': -1, '1,1': 1, '1,2': -1, '1,3': 1, '1,4': -1, '1,5': 1, '2,0': -1, '2,1': 1, '2,2': -1, '2,3': 1, '3,0': 1, '3,1': -1, '3,2': 1, '3,3': -1, '4,0': -1, '4,1': 1, '5,0': 1, '5,1': -1 },
+  },
+  {
+    id: 10, name: 'Day 10',
+    date: '2026-06-04',
+    shape: 'staircase',
+    clues:    { '1,2': 1, '4,1': 1, '2,2': -1, '0,1': 1, '3,0': -1, '0,4': -1 },
+    solution: { '0,0': -1, '0,1': 1, '0,2': -1, '0,3': 1, '0,4': -1, '0,5': 1, '1,0': 1, '1,1': -1, '1,2': 1, '1,3': -1, '1,4': 1, '1,5': -1, '2,0': 1, '2,1': -1, '2,2': -1, '2,3': 1, '3,0': -1, '3,1': 1, '3,2': 1, '3,3': -1, '4,0': -1, '4,1': 1, '5,0': 1, '5,1': -1 },
+  },
+  {
+    id: 11, name: 'Day 11',
+    date: '2026-06-05',
+    shape: 'staircase',
+    clues:    { '2,0': -1, '4,1': -1, '1,2': -1, '0,1': 1, '3,2': -1, '0,5': 1 },
+    solution: { '0,0': -1, '0,1': 1, '0,2': 1, '0,3': -1, '0,4': -1, '0,5': 1, '1,0': 1, '1,1': -1, '1,2': -1, '1,3': 1, '1,4': 1, '1,5': -1, '2,0': -1, '2,1': 1, '2,2': 1, '2,3': -1, '3,0': 1, '3,1': -1, '3,2': -1, '3,3': 1, '4,0': 1, '4,1': -1, '5,0': -1, '5,1': 1 },
+  },
+  // ── Add future puzzles below ──────────────────────────────────────────────
+];
+
+const SHAPES = {
+  'staircase':      [{o:0,l:6},{o:0,l:6},{o:0,l:4},{o:0,l:4},{o:0,l:2},{o:0,l:2}],
+  'diamond':        [{o:2,l:2},{o:1,l:4},{o:0,l:6},{o:0,l:6},{o:1,l:4},{o:2,l:2}],
+  'wide-staircase': [{o:0,l:8},{o:0,l:8},{o:0,l:6},{o:0,l:6},{o:0,l:4},{o:0,l:4},{o:0,l:2},{o:0,l:2}],
+};
+
+const SHAPE_LABELS = { staircase: 'Staircase', diamond: 'Diamond', 'wide-staircase': 'Wide Staircase' };
+const C = { empty: '#E8E6DF', plus: '#16A34A', minus: '#7C3AED' };
+const GAP = 4, MAX_GRID = 360;
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function formatTime(ms) {
+  const s = Math.floor(ms / 1000);
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+}
+
+function getColumns(shape) {
+  const maxCol = Math.max(...shape.map(r => r.o + r.l - 1));
+  const cols = [];
+  for (let c = 0; c <= maxCol; c++) {
+    const col = [];
+    for (let r = 0; r < shape.length; r++) {
+      const { o, l } = shape[r];
+      if (c >= o && c < o + l) col.push([r, c]);
+    }
+    if (col.length > 0) cols.push(col);
+  }
+  return cols;
+}
+
+function sequenceViolated(vals) {
+  let sum = 0;
+  for (const v of vals) {
+    if (v === 0) return false;
+    sum += v;
+    if (sum < -1) return true;
+  }
+  return sum !== 0;
+}
+
+function getViolatingCells(grid, shape) {
+  const violating = new Set();
+  for (let r = 0; r < shape.length; r++) {
+    const { o, l } = shape[r];
+    const keys = [], vals = [];
+    for (let c = o; c < o + l; c++) { keys.push(`${r},${c}`); vals.push(grid[`${r},${c}`] || 0); }
+    if (sequenceViolated(vals)) keys.forEach(k => violating.add(k));
+  }
+  for (const col of getColumns(shape)) {
+    const keys = col.map(([r, c]) => `${r},${c}`);
+    const vals = keys.map(k => grid[k] || 0);
+    if (sequenceViolated(vals)) keys.forEach(k => violating.add(k));
+  }
+  return violating;
+}
+
+function getRuleStatus(grid, shape) {
+  const cols = getColumns(shape);
+  let sumZeroV = false, sumZeroOk = true, rowPartialV = false, rowPartialOk = true, colPartialV = false, colPartialOk = true;
+  for (let r = 0; r < shape.length; r++) {
+    const { o, l } = shape[r];
+    const vals = [];
+    for (let c = o; c < o + l; c++) vals.push(grid[`${r},${c}`] || 0);
+    const allFilled = vals.every(v => v !== 0);
+    if (!allFilled) { sumZeroOk = false; rowPartialOk = false; }
+    let sum = 0, partial = false;
+    for (const v of vals) { if (v === 0) break; sum += v; if (sum < -1) { partial = true; break; } }
+    if (partial) { rowPartialV = true; rowPartialOk = false; }
+    if (allFilled && !partial && sum !== 0) { sumZeroV = true; sumZeroOk = false; }
+  }
+  for (const col of cols) {
+    const vals = col.map(([r, c]) => grid[`${r},${c}`] || 0);
+    const allFilled = vals.every(v => v !== 0);
+    if (!allFilled) { sumZeroOk = false; colPartialOk = false; }
+    let sum = 0, partial = false;
+    for (const v of vals) { if (v === 0) break; sum += v; if (sum < -1) { partial = true; break; } }
+    if (partial) { colPartialV = true; colPartialOk = false; }
+    if (allFilled && !partial && sum !== 0) { sumZeroV = true; sumZeroOk = false; }
+  }
+  return {
+    sumZero:    sumZeroV    ? 'violated' : sumZeroOk    ? 'ok' : 'pending',
+    rowPartial: rowPartialV ? 'violated' : rowPartialOk ? 'ok' : 'pending',
+    colPartial: colPartialV ? 'violated' : colPartialOk ? 'ok' : 'pending',
+  };
+}
+
+function isWon(grid, shape) {
+  const s = getRuleStatus(grid, shape);
+  return s.sumZero === 'ok' && s.rowPartial === 'ok' && s.colPartial === 'ok';
+}
+
+function buildGrid(puzzle) {
+  const grid = {}, shape = SHAPES[puzzle.shape];
+  for (let r = 0; r < shape.length; r++) {
+    const { o, l } = shape[r];
+    for (let c = o; c < o + l; c++) {
+      const key = `${r},${c}`;
+      grid[key] = puzzle.clues[key] !== undefined ? puzzle.clues[key] : 0;
+    }
+  }
+  return grid;
+}
+
+let available = [], pidx = 0, puzzle = null;
+let grid = {}, history = [], won = false;
+let elapsedMs = 0, moveCount = 0, undoCount = 0;
+let startTime = Date.now(), timerInterval = null;
+
+function startTimer() {
+  clearInterval(timerInterval);
+  startTime = Date.now() - elapsedMs;
+  timerInterval = setInterval(() => {
+    document.getElementById('timer').textContent = formatTime(Date.now() - startTime);
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  elapsedMs = Date.now() - startTime;
+  document.getElementById('timer').textContent = formatTime(elapsedMs);
+}
+
+function goDay(delta) {
+  const next = pidx + delta;
+  if (next < 0 || next >= available.length) return;
+  pidx = next; loadPuzzle();
+}
+function goToday() { pidx = available.length - 1; loadPuzzle(); }
+function goWinNext() { if (pidx < available.length - 1) goDay(1); }
+
+function loadPuzzle() {
+  puzzle = available[pidx];
+  grid = buildGrid(puzzle);
+  history = []; won = false;
+  elapsedMs = 0; moveCount = 0; undoCount = 0;
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('confetti-wrap').innerHTML = '';
+  document.getElementById('day-label').textContent = puzzle.name;
+  document.getElementById('day-date').textContent = puzzle.date;
+  document.getElementById('prev-btn').disabled = pidx === 0;
+  document.getElementById('next-btn').disabled = pidx === available.length - 1;
+  document.getElementById('undo-btn').disabled = true;
+  document.getElementById('timer').textContent = '0:00';
+  startTimer(); renderGrid(); updateRules();
+}
+
+function renderGrid() {
+  const shape = SHAPES[puzzle.shape];
+  const maxLen = Math.max(...shape.map(r => r.l));
+  const cellSize = Math.max(40, Math.min(68, Math.floor((MAX_GRID - (maxLen - 1) * GAP) / maxLen)));
+  const violating = getViolatingCells(grid, shape);
+  const wrap = document.getElementById('grid-wrap');
+  wrap.innerHTML = '';
+  const container = document.createElement('div');
+  container.style.cssText = `display:flex;flex-direction:column;gap:${GAP}px`;
+  for (let r = 0; r < shape.length; r++) {
+    const { o, l } = shape[r];
+    const rowEl = document.createElement('div');
+    rowEl.style.cssText = `display:flex;gap:${GAP}px;margin-left:${o * (cellSize + GAP)}px`;
+    for (let i = 0; i < l; i++) {
+      const c = o + i, key = `${r},${c}`;
+      const val = grid[key] || 0;
+      const isClue = puzzle.clues[key] !== undefined;
+      const isViolating = violating.has(key) && val !== 0;
+      const cell = document.createElement('div');
+      cell.style.cssText = [
+        `width:${cellSize}px`, `height:${cellSize}px`, `min-width:40px`, `min-height:40px`,
+        `background-color:${val === 1 ? C.plus : val === -1 ? C.minus : C.empty}`,
+        `border-radius:6px`, `position:relative`,
+        `display:flex`, `align-items:center`, `justify-content:center`,
+        `cursor:${isClue ? 'default' : 'pointer'}`,
+        `user-select:none`, `-webkit-user-select:none`,
+        `border:2px solid ${isViolating ? '#DC2626' : 'transparent'}`,
+        `transition:background-color 0.1s ease`, `flex-shrink:0`,
+      ].join(';');
+      if (val !== 0) {
+        const label = document.createElement('span');
+        label.style.cssText = `font-size:${Math.max(11, Math.floor(cellSize * 0.28))}px;font-weight:800;color:white;user-select:none;line-height:1`;
+        label.textContent = val === 1 ? '+1' : '−1';
+        cell.appendChild(label);
+      }
+      if (isClue && val !== 0) {
+        const dot = document.createElement('div');
+        dot.style.cssText = 'position:absolute;bottom:4px;right:4px;width:6px;height:6px;border-radius:50%;background-color:rgba(255,255,255,0.75);pointer-events:none';
+        cell.appendChild(dot);
+      }
+      if (!isClue && !won) {
+        const tap = () => handleTap(r, c);
+        cell.addEventListener('click', tap);
+        cell.addEventListener('touchend', e => { e.preventDefault(); tap(); }, { passive: false });
+        cell.setAttribute('tabindex', '0');
+        cell.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } });
+      }
+      rowEl.appendChild(cell);
+    }
+    container.appendChild(rowEl);
+  }
+  wrap.appendChild(container);
+}
+
+function updateRules() {
+  const status = getRuleStatus(grid, SHAPES[puzzle.shape]);
+  function setRule(id, state) {
+    const el = document.getElementById(id);
+    el.className = 'rule-state' + (state !== 'pending' ? ' ' + state : '');
+    el.textContent = state === 'ok' ? '✓ OK' : state === 'violated' ? '✗ Violated' : '—';
+  }
+  setRule('rule-sum', status.sumZero);
+  setRule('rule-row', status.rowPartial);
+  setRule('rule-col', status.colPartial);
+}
+
+function handleTap(r, c) {
+  if (won) return;
+  const key = `${r},${c}`;
+  history = [...history.slice(-39), { ...grid }];
+  moveCount++;
+  const cur = grid[key] || 0;
+  grid[key] = cur === 0 ? 1 : cur === 1 ? -1 : 0;
+  document.getElementById('undo-btn').disabled = false;
+  renderGrid(); updateRules();
+  if (isWon(grid, SHAPES[puzzle.shape]) && !won) {
+    stopTimer(); won = true; saveSolved(); showWin();
+  }
+}
+
+function handleUndo() {
+  if (history.length === 0) return;
+  grid = history[history.length - 1];
+  history = history.slice(0, -1);
+  undoCount++;
+  document.getElementById('undo-btn').disabled = history.length === 0;
+  renderGrid(); updateRules();
+}
+
+function handleReset() {
+  if (won) {
+    document.getElementById('overlay').classList.remove('show');
+    document.getElementById('confetti-wrap').innerHTML = '';
+    won = false;
+  }
+  grid = buildGrid(puzzle);
+  history = []; elapsedMs = 0; moveCount = 0; undoCount = 0;
+  document.getElementById('undo-btn').disabled = true;
+  startTimer(); renderGrid(); updateRules();
+}
+
+function saveSolved() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('parity_daily_solved') || '{}');
+    stored[puzzle.date] = true;
+    localStorage.setItem('parity_daily_solved', JSON.stringify(stored));
+  } catch { /* ignore */ }
+}
+
+function showWin() {
+  document.getElementById('win-sub').textContent = `${SHAPE_LABELS[puzzle.shape]} — ${puzzle.name}`;
+  document.getElementById('win-time').textContent = formatTime(elapsedMs);
+  document.getElementById('win-moves').textContent = moveCount;
+  document.getElementById('win-undos').textContent = undoCount;
+  const nextBtn = document.getElementById('win-next-btn');
+  if (pidx < available.length - 1) { nextBtn.textContent = 'Next ›'; nextBtn.style.display = ''; }
+  else { nextBtn.style.display = 'none'; }
+  document.getElementById('overlay').classList.add('show');
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const wrap = document.getElementById('confetti-wrap');
+  wrap.innerHTML = '';
+  const colors = ['#16A34A', '#7C3AED', '#1A6FC4', '#F59E0B', '#EC4899', '#06B6D4'];
+  for (let i = 0; i < 80; i++) {
+    const p = document.createElement('div');
+    p.className = 'cp';
+    const size = 6 + Math.random() * 8;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${size}px;background:${color};border-radius:${Math.random()>0.5?'50%':'2px'};animation-delay:${Math.random()*0.8}s;animation-duration:${1.8+Math.random()*1.2}s`;
+    wrap.appendChild(p);
+  }
+}
+
+function init() {
+  const TODAY = todayStr();
+  available = PUZZLES.filter(p => p.date <= TODAY).sort((a, b) => a.date.localeCompare(b.date));
+  if (available.length === 0) {
+    document.querySelector('.app').innerHTML =
+      '<div class="no-puzzles"><div style="font-size:48px">&#128284;</div><h2>No puzzles yet</h2><p>Check back tomorrow!</p></div>';
+    return;
+  }
+  pidx = available.length - 1;
+  loadPuzzle();
+}
+
+init();
+</script>
+</body>
+</html>
