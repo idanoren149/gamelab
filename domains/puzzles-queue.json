@@ -221,7 +221,7 @@
   {
     "id": 5,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "approved",
     "rows": 4,
     "cols": 4,
     "target": 3,
@@ -260,7 +260,7 @@
   {
     "id": 6,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -312,7 +312,7 @@
   {
     "id": 7,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -365,7 +365,7 @@
   {
     "id": 8,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 7,
