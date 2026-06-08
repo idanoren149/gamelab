@@ -517,7 +517,7 @@
   {
     "id": 11,
     "difficulty": "Medium",
-    "status": "approved",
+    "status": "published",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -825,7 +825,7 @@
   {
     "id": 17,
     "difficulty": "Easy",
-    "status": "approved",
+    "status": "published",
     "rows": 4,
     "cols": 4,
     "target": 5,
@@ -918,7 +918,7 @@
   {
     "id": 19,
     "difficulty": "Medium",
-    "status": "approved",
+    "status": "published",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -1067,7 +1067,7 @@
   {
     "id": 22,
     "difficulty": "Medium",
-    "status": "approved",
+    "status": "published",
     "rows": 5,
     "cols": 5,
     "target": 7,
@@ -1172,7 +1172,7 @@
   {
     "id": 24,
     "difficulty": "Hard",
-    "status": "approved",
+    "status": "published",
     "rows": 5,
     "cols": 6,
     "target": 6,
