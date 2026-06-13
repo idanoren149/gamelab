@@ -866,7 +866,7 @@
   {
     "id": 18,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -970,7 +970,7 @@
   {
     "id": 20,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 5,
@@ -1121,7 +1121,7 @@
   {
     "id": 23,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -1270,7 +1270,7 @@
   {
     "id": 26,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -1321,7 +1321,7 @@
   {
     "id": 27,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -1372,7 +1372,7 @@
   {
     "id": 28,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 7,
@@ -1471,7 +1471,7 @@
   {
     "id": 30,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -1523,7 +1523,7 @@
   {
     "id": 31,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -1576,7 +1576,7 @@
   {
     "id": 32,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 9,
@@ -1678,7 +1678,7 @@
   {
     "id": 34,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -1730,7 +1730,7 @@
   {
     "id": 35,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -1783,7 +1783,7 @@
   {
     "id": 36,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 8,
@@ -1843,7 +1843,7 @@
   {
     "id": 37,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "approved",
     "rows": 4,
     "cols": 4,
     "target": 4,
@@ -1883,7 +1883,7 @@
   {
     "id": 38,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -1936,7 +1936,7 @@
   {
     "id": 39,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -1989,7 +1989,7 @@
   {
     "id": 40,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 7,
@@ -2048,7 +2048,7 @@
   {
     "id": 41,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "approved",
     "rows": 4,
     "cols": 4,
     "target": 3,
@@ -2087,7 +2087,7 @@
   {
     "id": 42,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -2139,7 +2139,7 @@
   {
     "id": 43,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 6,
@@ -2192,7 +2192,7 @@
   {
     "id": 44,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 6,
@@ -2250,7 +2250,7 @@
   {
     "id": 45,
     "difficulty": "Easy",
-    "status": "pending",
+    "status": "approved",
     "rows": 4,
     "cols": 4,
     "target": 4,
@@ -2290,7 +2290,7 @@
   {
     "id": 46,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 5,
@@ -2342,7 +2342,7 @@
   {
     "id": 47,
     "difficulty": "Medium",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 5,
     "target": 4,
@@ -2393,7 +2393,7 @@
   {
     "id": 48,
     "difficulty": "Hard",
-    "status": "pending",
+    "status": "approved",
     "rows": 5,
     "cols": 6,
     "target": 5,
