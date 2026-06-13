@@ -48,16 +48,7 @@
     }
     .today-btn:active { background: #155FA0; }
     .grid-wrap { display: flex; justify-content: center; padding: 0 16px 16px; width: 100%; overflow-x: auto; }
-    .rules { display: flex; flex-direction: column; gap: 6px; padding: 0 16px 12px; }
-    .rule-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 6px 12px; border-radius: 10px; background: #f3f4f6; font-size: 12px;
-    }
-    .rule-label { font-weight: 600; color: #555; }
-    .rule-state { font-weight: 700; color: #9ca3af; }
-    .rule-state.ok       { color: #16a34a; }
-    .rule-state.violated { color: #dc2626; }
-    .actions { display: flex; justify-content: center; gap: 8px; padding: 0 16px 32px; }
+.actions { display: flex; justify-content: center; gap: 8px; padding: 0 16px 32px; }
     .act-btn {
       flex: 1; min-width: 80px; max-width: 100px; padding: 10px 0;
       border-radius: 12px; border: none; font-size: 14px; font-weight: 600;
@@ -104,6 +95,41 @@
       justify-content: center; padding: 32px; text-align: center; color: #888; gap: 12px;
     }
     .no-puzzles h2 { font-size: 18px; font-weight: 700; color: #555; }
+    .howto { padding: 0 16px 8px; }
+    .howto-toggle {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; border-radius: 10px; border: none;
+      background: #f3f4f6; cursor: pointer; font-size: 13px; font-weight: 700; color: #555;
+    }
+    .howto-toggle:active { background: #e5e7eb; }
+    .howto-arrow { transition: transform 0.2s; display: inline-block; }
+    .howto-arrow.open { transform: rotate(180deg); }
+    .howto-body { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+    .howto-body.open { max-height: 600px; }
+    .howto-inner { padding: 10px 2px 4px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #444; line-height: 1.5; }
+    .howto-rule { display: flex; gap: 10px; align-items: flex-start; }
+    .howto-num {
+      min-width: 20px; height: 20px; border-radius: 50%; background: #1A6FC4; color: white;
+      font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px;
+    }
+    .howto-examples { display: flex; flex-direction: column; gap: 8px; }
+    .howto-ex { display: flex; flex-direction: column; gap: 3px; }
+    .howto-mini-row { display: flex; gap: 3px; }
+    .howto-cell {
+      width: 34px; height: 28px; border-radius: 5px; display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; color: white; flex-shrink: 0;
+    }
+    .howto-cell.p { background: #16A34A; }
+    .howto-cell.m { background: #7C3AED; }
+    .howto-verdict { font-size: 11px; font-weight: 600; line-height: 1.4; }
+    .howto-verdict.ok  { color: #16a34a; }
+    .howto-verdict.bad { color: #dc2626; }
+    .howto-chip {
+      display: inline-flex; align-items: center; padding: 0 5px; border-radius: 4px;
+      font-size: 11px; font-weight: 800; color: white; vertical-align: middle; line-height: 20px;
+    }
+    .howto-chip.p { background: #16A34A; }
+    .howto-chip.m { background: #7C3AED; }
     @media (prefers-color-scheme: dark) {
       body { background: #111113; color: #e8e6df; }
       h1 { color: #f0ede6; }
@@ -113,9 +139,7 @@
       .day-arrow:active { background: #2a2a2e; }
       .day-label { color: #f0ede6; }
       .timer { color: #666; }
-      .rule-row { background: #1e1e22; }
-      .rule-label { color: #9ca3af; }
-      .act-btn { background: #1e1e22; color: #d1d5db; }
+.act-btn { background: #1e1e22; color: #d1d5db; }
       .act-btn:active { background: #2a2a2e; }
       .win-card { background: #1a1a1e; }
       .win-title { color: #f0ede6; }
@@ -123,6 +147,9 @@
       .win-stat { background: #252528; }
       .win-stat-value { color: #f0ede6; }
       .win-btn.sec { background: #252528; color: #d1d5db; }
+      .howto-toggle { background: #1e1e22; color: #9ca3af; }
+      .howto-toggle:active { background: #2a2a2e; }
+      .howto-inner { color: #9ca3af; }
     }
   </style>
 </head>
@@ -144,24 +171,49 @@
     <button class="day-arrow" id="next-btn" onclick="goDay(1)" aria-label="Next puzzle">&#8250;</button>
   </div>
 
-  <div class="grid-wrap" id="grid-wrap"></div>
-
-  <div class="rules">
-    <div class="rule-row">
-      <span class="rule-label">Sum = 0</span>
-      <span class="rule-state" id="rule-sum">—</span>
-    </div>
-    <div class="rule-row">
-      <span class="rule-label">Row partial sums &#8805; &#8722;1</span>
-      <span class="rule-state" id="rule-row">—</span>
-    </div>
-    <div class="rule-row">
-      <span class="rule-label">Col partial sums &#8805; &#8722;1</span>
-      <span class="rule-state" id="rule-col">—</span>
+  <div class="howto">
+    <button class="howto-toggle" id="howto-toggle" onclick="toggleHowTo()" aria-expanded="false">
+      <span>How to Play</span>
+      <span class="howto-arrow" id="howto-arrow">&#9660;</span>
+    </button>
+    <div class="howto-body" id="howto-body">
+      <div class="howto-inner">
+        <p>Tap any empty cell to place <span class="howto-chip p">+1</span> or <span class="howto-chip m">&#8722;1</span>. Tap again to switch; tap a third time to clear it. Cells with a small dot are fixed clues you can&#8217;t change.</p>
+        <div class="howto-rule">
+          <div class="howto-num">1</div>
+          <div><strong>Balance every row and column</strong> &#8212; each must contain equal numbers of +1s and &#8722;1s, so every row and column sums to zero.</div>
+        </div>
+        <div class="howto-rule">
+          <div class="howto-num">2</div>
+          <div><strong>No overdraft</strong> &#8212; think of +1 as a deposit and &#8722;1 as a withdrawal. Reading any row left&#8594;right (or column top&#8594;bottom), the running total can drop to &#8722;1 but never lower.</div>
+        </div>
+        <div class="howto-examples">
+          <div class="howto-ex">
+            <div class="howto-mini-row">
+              <div class="howto-cell m">&#8722;1</div><div class="howto-cell p">+1</div><div class="howto-cell m">&#8722;1</div><div class="howto-cell p">+1</div>
+            </div>
+            <div class="howto-verdict ok">&#10003; Running total: &#8722;1, 0, &#8722;1, 0 &#8212; balanced, never below &#8722;1</div>
+          </div>
+          <div class="howto-ex">
+            <div class="howto-mini-row">
+              <div class="howto-cell p">+1</div><div class="howto-cell m">&#8722;1</div><div class="howto-cell m">&#8722;1</div><div class="howto-cell p">+1</div>
+            </div>
+            <div class="howto-verdict ok">&#10003; Running total: 1, 0, &#8722;1, 0 &#8212; just touches &#8722;1, still fine</div>
+          </div>
+          <div class="howto-ex">
+            <div class="howto-mini-row">
+              <div class="howto-cell m">&#8722;1</div><div class="howto-cell m">&#8722;1</div><div class="howto-cell p">+1</div><div class="howto-cell p">+1</div>
+            </div>
+            <div class="howto-verdict bad">&#10007; Running total: &#8722;1, &#8722;2 &#8212; hits &#8722;2, too overdrawn!</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="actions">
+  <div class="grid-wrap" id="grid-wrap"></div>
+
+<div class="actions">
     <button class="act-btn" id="undo-btn" onclick="handleUndo()" disabled>Undo</button>
     <button class="act-btn" onclick="handleReset()">Reset</button>
   </div>
@@ -550,7 +602,7 @@ function loadPuzzle() {
   document.getElementById('next-btn').disabled = pidx === available.length - 1;
   document.getElementById('undo-btn').disabled = true;
   document.getElementById('timer').textContent = '0:00';
-  startTimer(); renderGrid(); updateRules();
+  startTimer(); renderGrid();;
 }
 
 function renderGrid() {
@@ -607,17 +659,6 @@ function renderGrid() {
   wrap.appendChild(container);
 }
 
-function updateRules() {
-  const status = getRuleStatus(grid, SHAPES[puzzle.shape]);
-  function setRule(id, state) {
-    const el = document.getElementById(id);
-    el.className = 'rule-state' + (state !== 'pending' ? ' ' + state : '');
-    el.textContent = state === 'ok' ? '✓ OK' : state === 'violated' ? '✗ Violated' : '—';
-  }
-  setRule('rule-sum', status.sumZero);
-  setRule('rule-row', status.rowPartial);
-  setRule('rule-col', status.colPartial);
-}
 
 function handleTap(r, c) {
   if (won) return;
@@ -627,7 +668,7 @@ function handleTap(r, c) {
   const cur = grid[key] || 0;
   grid[key] = cur === 0 ? 1 : cur === 1 ? -1 : 0;
   document.getElementById('undo-btn').disabled = false;
-  renderGrid(); updateRules();
+  renderGrid();;
   if (isWon(grid, SHAPES[puzzle.shape]) && !won) {
     stopTimer(); won = true; saveSolved(); showWin();
   }
@@ -639,7 +680,7 @@ function handleUndo() {
   history = history.slice(0, -1);
   undoCount++;
   document.getElementById('undo-btn').disabled = history.length === 0;
-  renderGrid(); updateRules();
+  renderGrid();;
 }
 
 function handleReset() {
@@ -651,7 +692,7 @@ function handleReset() {
   grid = buildGrid(puzzle);
   history = []; elapsedMs = 0; moveCount = 0; undoCount = 0;
   document.getElementById('undo-btn').disabled = true;
-  startTimer(); renderGrid(); updateRules();
+  startTimer(); renderGrid();;
 }
 
 function saveSolved() {
@@ -688,6 +729,29 @@ function launchConfetti() {
   }
 }
 
+function toggleHowTo() {
+  const body = document.getElementById('howto-body');
+  const arrow = document.getElementById('howto-arrow');
+  const btn = document.getElementById('howto-toggle');
+  const open = body.classList.toggle('open');
+  arrow.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', String(open));
+  try { localStorage.setItem('parity_howto', open ? '1' : '0'); } catch {}
+}
+
+function initHowTo() {
+  let open = true;
+  try {
+    const s = localStorage.getItem('parity_howto');
+    if (s !== null) open = s === '1';
+  } catch {}
+  if (open) {
+    document.getElementById('howto-body').classList.add('open');
+    document.getElementById('howto-arrow').classList.add('open');
+    document.getElementById('howto-toggle').setAttribute('aria-expanded', 'true');
+  }
+}
+
 function init() {
   const TODAY = todayStr();
   available = PUZZLES.filter(p => p.date <= TODAY).sort((a, b) => a.date.localeCompare(b.date));
@@ -700,6 +764,7 @@ function init() {
   loadPuzzle();
 }
 
+initHowTo();
 init();
 </script>
 </body>
