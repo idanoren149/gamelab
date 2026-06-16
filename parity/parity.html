@@ -130,6 +130,79 @@
     }
     .howto-chip.p { background: #16A34A; }
     .howto-chip.m { background: #7C3AED; }
+    /* ── Hint banner ─────────────────────────────────────────────────────── */
+    @keyframes hintPulse {
+      0%, 100% { box-shadow: 0 0 8px 2px rgba(245,158,11,0.4); }
+      50%       { box-shadow: 0 0 16px 6px rgba(245,158,11,0.7); }
+    }
+    .hint-cell {
+      border: 2px solid #f59e0b !important;
+      animation: hintPulse 1.4s ease-in-out infinite;
+    }
+    .hint-wrap { padding: 0 16px 8px; }
+    .hint-toggle {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid #fde047; background: #FEF9C3; color: #854d0e;
+      font-size: 13px; font-weight: 600; cursor: pointer; text-align: left;
+      transition: border-radius 0.2s;
+    }
+    .hint-toggle:active { background: #fef08a; }
+    .hint-toggle.open { border-radius: 10px 10px 0 0; border-bottom-color: transparent; }
+    .hint-panel {
+      overflow: hidden; max-height: 0; transition: max-height 0.25s ease;
+      border: 1px solid #fde047; border-top: none;
+      border-radius: 0 0 10px 10px; background: #FEF9C3;
+    }
+    .hint-panel.open { max-height: 140px; }
+    .hint-panel-inner { padding: 8px 12px; font-size: 13px; color: #854d0e; line-height: 1.5; }
+    /* ── Tutorial overlay ────────────────────────────────────────────────── */
+    #tut-overlay {
+      display: none; position: fixed; inset: 0; z-index: 60;
+      background: rgba(0,0,0,0.55); align-items: center; justify-content: center;
+    }
+    #tut-overlay.show { display: flex; }
+    .tut-card {
+      background: white; border-radius: 20px; padding: 24px 24px 20px;
+      margin: 24px; width: 100%; max-width: 360px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative;
+    }
+    .tut-close {
+      position: absolute; top: 12px; right: 12px; width: 28px; height: 28px;
+      border-radius: 50%; border: none; background: #f3f4f6; cursor: pointer;
+      font-size: 14px; display: flex; align-items: center; justify-content: center; color: #666;
+    }
+    .tut-close:active { background: #e5e7eb; }
+    .tut-slide-content { transition: opacity 0.2s ease; min-height: 160px; }
+    .tut-slide-content.fading { opacity: 0; }
+    .tut-icon { font-size: 36px; text-align: center; margin-bottom: 8px; }
+    .tut-title { font-size: 18px; font-weight: 900; color: #111; text-align: center; margin-bottom: 8px; }
+    .tut-body  { font-size: 14px; color: #555; text-align: center; line-height: 1.5; margin-bottom: 12px; }
+    .tut-row-demo { display: flex; gap: 4px; justify-content: center; margin-bottom: 6px; }
+    .tut-cycle    { display: flex; align-items: center; gap: 6px; justify-content: center; margin: 12px 0; }
+    .tut-arrow    { color: #9ca3af; font-size: 16px; }
+    .tut-cell     { width: 44px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+    .tut-plus  { background: #16A34A; color: white; }
+    .tut-minus { background: #7C3AED; color: white; }
+    .tut-empty { background: #E8E6DF; color: #aaa; }
+    .tut-pulse { animation: hintPulse 1.4s ease-in-out infinite; border: 2px solid #f59e0b !important; }
+    .tut-verdict { font-size: 12px; font-weight: 600; text-align: center; }
+    .tut-ok  { color: #16a34a; }
+    .tut-bad { color: #dc2626; }
+    .tut-dots { display: flex; justify-content: center; gap: 6px; margin: 14px 0 4px; }
+    .tut-dot  { width: 8px; height: 8px; border-radius: 50%; background: #e5e7eb; transition: background 0.2s; }
+    .tut-dot.active { background: #1A6FC4; }
+    .tut-nav  { display: flex; gap: 8px; margin-top: 10px; }
+    .tut-nav-btn { flex: 1; padding: 10px 0; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .tut-prev { background: #f3f4f6; color: #374151; }
+    .tut-prev:active { background: #e5e7eb; }
+    .tut-prev:disabled { opacity: 0.3; cursor: default; }
+    .tut-next { background: #1A6FC4; color: white; }
+    .tut-next:active { background: #155FA0; }
+    .tut-replay-btn {
+      align-self: flex-start; padding: 6px 12px; border-radius: 8px; border: none;
+      background: #1A6FC4; color: white; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .tut-replay-btn:active { background: #155FA0; }
     @media (prefers-color-scheme: dark) {
       body { background: #111113; color: #e8e6df; }
       h1 { color: #f0ede6; }
@@ -150,6 +223,18 @@
       .howto-toggle { background: #1e1e22; color: #9ca3af; }
       .howto-toggle:active { background: #2a2a2e; }
       .howto-inner { color: #9ca3af; }
+      .hint-toggle { background: #2a2418; color: #fbbf24; border-color: #7a6012; }
+      .hint-toggle:active { background: #352b1c; }
+      .hint-panel { background: #2a2418; border-color: #7a6012; }
+      .hint-panel-inner { color: #fbbf24; }
+      .tut-card  { background: #1a1a1e; }
+      .tut-close { background: #252528; color: #9ca3af; }
+      .tut-close:active { background: #2f2f34; }
+      .tut-title { color: #f0ede6; }
+      .tut-body  { color: #9ca3af; }
+      .tut-prev  { background: #252528; color: #d1d5db; }
+      .tut-dot   { background: #3f3f46; }
+      .tut-dot.active { background: #60a5fa; }
     }
   </style>
 </head>
@@ -207,11 +292,19 @@
             <div class="howto-verdict bad">&#10007; Running total: &#8722;1, &#8722;2 &#8212; hits &#8722;2, too overdrawn!</div>
           </div>
         </div>
+        <button class="tut-replay-btn" onclick="showTutorial()">&#9654; Tutorial</button>
       </div>
     </div>
   </div>
 
   <div class="grid-wrap" id="grid-wrap"></div>
+
+  <div class="hint-wrap">
+    <button class="hint-toggle" id="hint-toggle" onclick="handleHintBanner()">💡 Get a hint</button>
+    <div class="hint-panel" id="hint-panel">
+      <div class="hint-panel-inner" id="hint-text"></div>
+    </div>
+  </div>
 
 <div class="actions">
     <button class="act-btn" id="undo-btn" onclick="handleUndo()" disabled>Undo</button>
@@ -231,8 +324,9 @@
       <div class="win-stat"><div class="win-stat-label">Moves</div><div class="win-stat-value" id="win-moves">—</div></div>
       <div class="win-stat"><div class="win-stat-label">Undos</div><div class="win-stat-value" id="win-undos">—</div></div>
     </div>
+    <div class="win-hint-row" id="win-hint-row" style="display:none;text-align:center;font-size:12px;color:#9ca3af;margin-bottom:12px;"></div>
     <div class="win-actions">
-      <button class="win-btn sec" onclick="handleReset()">Play again</button>
+      <button class="win-btn sec" onclick="seeBoard()">See the board</button>
       <button class="win-btn pri" id="win-next-btn" onclick="goWinNext()">Next &#8250;</button>
     </div>
   </div>
@@ -550,6 +644,153 @@ function isWon(grid, shape) {
   return s.sumZero === 'ok' && s.rowPartial === 'ok' && s.colPartial === 'ok';
 }
 
+function getHint() {
+  const shape = SHAPES[puzzle.shape];
+  const cols = getColumns(shape);
+
+  function rowCells(r) {
+    const { o, l } = shape[r];
+    const arr = [];
+    for (let c = o; c < o + l; c++) arr.push([r, c, grid[`${r},${c}`] || 0]);
+    return arr;
+  }
+
+  const lines = [];
+  for (let r = 0; r < shape.length; r++)
+    lines.push({ label: `Row ${r + 1}`, cells: rowCells(r) });
+  for (let ci = 0; ci < cols.length; ci++)
+    lines.push({ label: `Column ${ci + 1}`, cells: cols[ci].map(([r, c]) => [r, c, grid[`${r},${c}`] || 0]) });
+
+  for (const { label, cells } of lines) {
+    const n = cells.length, half = n / 2;
+    const empties = cells.filter(([,, v]) => v === 0);
+    const filled  = cells.filter(([,, v]) => v !== 0);
+    if (empties.length === 0) continue;
+    const plusCount  = filled.filter(([,, v]) => v ===  1).length;
+    const minusCount = filled.filter(([,, v]) => v === -1).length;
+    const currentSum = filled.reduce((s, [,, v]) => s + v, 0);
+    const lbl = label.toLowerCase();
+
+    // Case 1 – last empty cell
+    if (empties.length === 1) {
+      const [er, ec] = empties[0];
+      const val = -currentSum;
+      const vs = val > 0 ? '<strong>+1</strong>' : '<strong>&#8722;1</strong>';
+      return { r: er, c: ec, val,
+        reason: `${label} has one empty cell left — it must be ${vs} to balance the total to zero.` };
+    }
+
+    // Case 2 – overdraft prevention (running total before first empty is −1)
+    {
+      let running = 0;
+      for (const [r, c, v] of cells) {
+        if (v === 0) {
+          if (running === -1)
+            return { r, c, val: 1,
+              reason: `The running total in ${lbl} reaches &#8722;1 just before this cell — another &#8722;1 would go to &#8722;2 and break the no-overdraft rule.` };
+          break;
+        }
+        running += v;
+      }
+    }
+
+    // Case 3 – count exhausted
+    if (plusCount === half) {
+      const [er, ec] = empties[0];
+      return { r: er, c: ec, val: -1,
+        reason: `${label} already has its ${half} <strong>+1</strong>s — all remaining empty cells must be <strong>&#8722;1</strong>.` };
+    }
+    if (minusCount === half) {
+      const [er, ec] = empties[0];
+      return { r: er, c: ec, val: 1,
+        reason: `${label} already has its ${half} <strong>&#8722;1</strong>s — all remaining empty cells must be <strong>+1</strong>.` };
+    }
+
+    // Case 4 – mathematically impossible
+    for (const [er, ec] of empties) {
+      const rem = empties.length - 1;
+      const needed1  = -(currentSum + 1);
+      const neededm1 = -(currentSum - 1);
+      if (Math.abs(needed1) > rem)
+        return { r: er, c: ec, val: -1,
+          reason: `Placing <strong>+1</strong> here would leave ${lbl} needing ${needed1 > 0 ? '+' : ''}${needed1} from ${rem} cell${rem !== 1 ? 's' : ''} — impossible.` };
+      if (Math.abs(neededm1) > rem)
+        return { r: er, c: ec, val: 1,
+          reason: `Placing <strong>&#8722;1</strong> here would leave ${lbl} needing ${neededm1 > 0 ? '+' : ''}${neededm1} from ${rem} cell${rem !== 1 ? 's' : ''} — impossible.` };
+    }
+
+    // Case 5 – forced chain creates overdraft
+    for (const [er, ec] of empties) {
+      for (const tryVal of [1, -1]) {
+        const newPlus  = plusCount  + (tryVal ===  1 ? 1 : 0);
+        const newMinus = minusCount + (tryVal === -1 ? 1 : 0);
+        let forcedVal = null;
+        if (newPlus  === half) forcedVal = -1;
+        if (newMinus === half) forcedVal =  1;
+        if (forcedVal === null) continue;
+
+        const seq = cells.map(([r, c, v]) => {
+          if (r === er && c === ec) return tryVal;
+          return v !== 0 ? v : forcedVal;
+        });
+
+        let sum = 0, overdraft = false;
+        for (const v of seq) { sum += v; if (sum < -1) { overdraft = true; break; } }
+
+        if (overdraft) {
+          const tryStr   = tryVal > 0 ? '<strong>+1</strong>' : '<strong>&#8722;1</strong>';
+          const otherStr = tryVal < 0 ? '<strong>+1</strong>' : '<strong>&#8722;1</strong>';
+          return { r: er, c: ec, val: -tryVal,
+            reason: `Placing ${tryStr} here forces the remaining cells in ${lbl} to all be ${otherStr} — but that sequence would overdraft ${lbl}.` };
+        }
+      }
+    }
+  }
+
+  // Fallback – solution reveal
+  for (let r = 0; r < shape.length; r++) {
+    const { o, l } = shape[r];
+    for (let c = o; c < o + l; c++) {
+      const key = `${r},${c}`;
+      if ((grid[key] || 0) === 0 && puzzle.clues[key] === undefined) {
+        const val = puzzle.solution[key];
+        if (val !== undefined) {
+          const vs = val > 0 ? '<strong>+1</strong>' : '<strong>&#8722;1</strong>';
+          return { r, c, val, reason: `See if you can work out why from the rules.` };
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function openHint(hint) {
+  hintOpen = true;
+  hintTarget = { r: hint.r, c: hint.c };
+  const hintVs = hint.val > 0 ? '<strong>+1</strong>' : '<strong>&#8722;1</strong>';
+  document.getElementById('hint-text').innerHTML = hint.reason + ` Therefore the highlighted cell must be ${hintVs}.`;
+  document.getElementById('hint-panel').classList.add('open');
+  document.getElementById('hint-toggle').classList.add('open');
+  renderGrid();
+}
+
+function closeHint() {
+  hintOpen = false;
+  hintTarget = null;
+  document.getElementById('hint-panel').classList.remove('open');
+  document.getElementById('hint-toggle').classList.remove('open');
+  document.querySelectorAll('.hint-cell').forEach(el => el.classList.remove('hint-cell'));
+}
+
+function handleHintBanner() {
+  if (won) return;
+  if (hintOpen) { closeHint(); return; }
+  const hint = getHint();
+  if (!hint) return;
+  hintCount++;
+  openHint(hint);
+}
+
 function buildGrid(puzzle) {
   const grid = {}, shape = SHAPES[puzzle.shape];
   for (let r = 0; r < shape.length; r++) {
@@ -565,6 +806,7 @@ function buildGrid(puzzle) {
 let available = [], pidx = 0, puzzle = null;
 let grid = {}, history = [], won = false;
 let elapsedMs = 0, moveCount = 0, undoCount = 0;
+let hintTarget = null, hintCount = 0, hintOpen = false;
 let startTime = Date.now(), timerInterval = null;
 
 function startTimer() {
@@ -588,12 +830,15 @@ function goDay(delta) {
 }
 function goToday() { pidx = available.length - 1; loadPuzzle(); }
 function goWinNext() { if (pidx < available.length - 1) goDay(1); }
+function seeBoard() { document.getElementById('overlay').classList.remove('show'); }
 
 function loadPuzzle() {
   puzzle = available[pidx];
   grid = buildGrid(puzzle);
   history = []; won = false;
   elapsedMs = 0; moveCount = 0; undoCount = 0;
+  closeHint();
+  hintCount = 0;
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('confetti-wrap').innerHTML = '';
   document.getElementById('day-label').textContent = puzzle.name;
@@ -602,7 +847,7 @@ function loadPuzzle() {
   document.getElementById('next-btn').disabled = pidx === available.length - 1;
   document.getElementById('undo-btn').disabled = true;
   document.getElementById('timer').textContent = '0:00';
-  startTimer(); renderGrid();;
+  startTimer(); renderGrid();
 }
 
 function renderGrid() {
@@ -652,6 +897,9 @@ function renderGrid() {
         cell.setAttribute('tabindex', '0');
         cell.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } });
       }
+      if (hintTarget && r === hintTarget.r && c === hintTarget.c) {
+        cell.classList.add('hint-cell');
+      }
       rowEl.appendChild(cell);
     }
     container.appendChild(rowEl);
@@ -663,12 +911,13 @@ function renderGrid() {
 function handleTap(r, c) {
   if (won) return;
   const key = `${r},${c}`;
+  if (hintTarget && hintTarget.r === r && hintTarget.c === c) closeHint();
   history = [...history.slice(-39), { ...grid }];
   moveCount++;
   const cur = grid[key] || 0;
   grid[key] = cur === 0 ? 1 : cur === 1 ? -1 : 0;
   document.getElementById('undo-btn').disabled = false;
-  renderGrid();;
+  renderGrid();
   if (isWon(grid, SHAPES[puzzle.shape]) && !won) {
     stopTimer(); won = true; saveSolved(); showWin();
   }
@@ -680,7 +929,7 @@ function handleUndo() {
   history = history.slice(0, -1);
   undoCount++;
   document.getElementById('undo-btn').disabled = history.length === 0;
-  renderGrid();;
+  renderGrid();
 }
 
 function handleReset() {
@@ -692,7 +941,7 @@ function handleReset() {
   grid = buildGrid(puzzle);
   history = []; elapsedMs = 0; moveCount = 0; undoCount = 0;
   document.getElementById('undo-btn').disabled = true;
-  startTimer(); renderGrid();;
+  startTimer(); renderGrid();
 }
 
 function saveSolved() {
@@ -708,6 +957,13 @@ function showWin() {
   document.getElementById('win-time').textContent = formatTime(elapsedMs);
   document.getElementById('win-moves').textContent = moveCount;
   document.getElementById('win-undos').textContent = undoCount;
+  const hintRow = document.getElementById('win-hint-row');
+  if (hintCount > 0) {
+    hintRow.textContent = hintCount === 1 ? '1 hint used' : `${hintCount} hints used`;
+    hintRow.style.display = '';
+  } else {
+    hintRow.style.display = 'none';
+  }
   const nextBtn = document.getElementById('win-next-btn');
   if (pidx < available.length - 1) { nextBtn.textContent = 'Next ›'; nextBtn.style.display = ''; }
   else { nextBtn.style.display = 'none'; }
@@ -739,6 +995,139 @@ function toggleHowTo() {
   try { localStorage.setItem('parity_howto', open ? '1' : '0'); } catch {}
 }
 
+const TUTORIAL_STEPS = [
+  { content: `
+    <div class="tut-icon">&#127918;</div>
+    <h2 class="tut-title">Welcome to Parity!</h2>
+    <p class="tut-body">Fill every cell with +1 or &#8722;1. Satisfy two simple rules, and you win.</p>
+    <div class="tut-row-demo">
+      <div class="tut-cell tut-plus">+1</div>
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <div class="tut-cell tut-empty"></div>
+      <div class="tut-cell tut-empty"></div>
+    </div>` },
+  { content: `
+    <h2 class="tut-title">Tap a cell to fill it</h2>
+    <p class="tut-body">Each tap cycles: empty &#8594; <strong>+1</strong> &#8594; <strong>&#8722;1</strong> &#8594; empty.</p>
+    <div class="tut-cycle">
+      <div class="tut-cell tut-empty">&#8212;</div>
+      <span class="tut-arrow">&#8594;</span>
+      <div class="tut-cell tut-plus">+1</div>
+      <span class="tut-arrow">&#8594;</span>
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <span class="tut-arrow">&#8594;</span>
+      <div class="tut-cell tut-empty">&#8212;</div>
+    </div>` },
+  { content: `
+    <h2 class="tut-title">Rule 1: Balance</h2>
+    <p class="tut-body">Every row and column must have equal +1s and &#8722;1s — they sum to zero.</p>
+    <div class="tut-row-demo">
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <div class="tut-cell tut-plus">+1</div>
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <div class="tut-cell tut-plus">+1</div>
+    </div>
+    <div class="tut-verdict tut-ok">&#10003; Sum = 0 — balanced!</div>` },
+  { content: `
+    <h2 class="tut-title">Rule 2: No overdraft</h2>
+    <p class="tut-body">Reading left&#8594;right, the running total must never drop below &#8722;1.</p>
+    <div class="tut-row-demo" style="margin-bottom:4px">
+      <div class="tut-cell tut-plus">+1</div>
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <div class="tut-cell tut-plus">+1</div>
+    </div>
+    <div class="tut-verdict tut-ok" style="margin-bottom:10px">&#10003; Totals: 1, 0, &#8722;1, 0 — fine</div>
+    <div class="tut-row-demo" style="margin-bottom:4px">
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <div class="tut-cell tut-plus">+1</div>
+      <div class="tut-cell tut-plus">+1</div>
+    </div>
+    <div class="tut-verdict tut-bad">&#10007; Totals: &#8722;1, &#8722;2 — overdraft!</div>` },
+  { content: `
+    <h2 class="tut-title">Deduce every cell</h2>
+    <p class="tut-body">Running total hits &#8722;1 before the last cell. Another &#8722;1 &#8594; &#8722;2. So this cell <strong>must be +1</strong>.</p>
+    <div class="tut-row-demo" style="margin-bottom:4px">
+      <div class="tut-cell tut-plus">+1</div>
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <div class="tut-cell tut-minus">&#8722;1</div>
+      <div class="tut-cell tut-empty tut-pulse">?</div>
+    </div>
+    <div style="font-size:11px;color:#9ca3af;text-align:center">+1&#8594;0&#8594;&#8722;1&#8594;<strong style="color:#854d0e">must be +1</strong></div>` },
+  { content: `
+    <div class="tut-icon">&#127942;</div>
+    <h2 class="tut-title">You&#8217;re ready!</h2>
+    <p class="tut-body">Every puzzle has exactly one solution reachable by pure logic — no guessing needed. Good luck!</p>` }
+];
+
+let tutStep = 0, tutAnimating = false;
+
+function showTutorial() {
+  tutStep = 0;
+  tutAnimating = false;
+  let ov = document.getElementById('tut-overlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'tut-overlay';
+    ov.innerHTML = `
+      <div class="tut-card">
+        <button class="tut-close" onclick="dismissTutorial()" aria-label="Close">&#10005;</button>
+        <div class="tut-slide-content" id="tut-slide"></div>
+        <div class="tut-dots" id="tut-dots"></div>
+        <div class="tut-nav">
+          <button class="tut-nav-btn tut-prev" id="tut-prev" onclick="tutNav(-1)">&#8592; Back</button>
+          <button class="tut-nav-btn tut-next" id="tut-next" onclick="tutNav(1)">Next &#8594;</button>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    const card = ov.querySelector('.tut-card');
+    let tx = 0;
+    card.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    card.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 50) tutNav(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  }
+  document.body.style.overflow = 'hidden';
+  ov.classList.add('show');
+  renderTutStep();
+}
+
+function renderTutStep() {
+  const slide = document.getElementById('tut-slide');
+  slide.innerHTML = TUTORIAL_STEPS[tutStep].content;
+  document.getElementById('tut-dots').innerHTML =
+    TUTORIAL_STEPS.map((_, i) => `<div class="tut-dot${i === tutStep ? ' active' : ''}"></div>`).join('');
+  document.getElementById('tut-prev').disabled = tutStep === 0;
+  document.getElementById('tut-next').textContent =
+    tutStep === TUTORIAL_STEPS.length - 1 ? 'Start Puzzle' : 'Next →';
+}
+
+function tutNav(dir) {
+  if (tutAnimating) return;
+  if (dir === 1 && tutStep === TUTORIAL_STEPS.length - 1) { dismissTutorial(); return; }
+  const next = tutStep + dir;
+  if (next < 0 || next >= TUTORIAL_STEPS.length) return;
+  const slide = document.getElementById('tut-slide');
+  tutAnimating = true;
+  slide.classList.add('fading');
+  setTimeout(() => { tutStep = next; renderTutStep(); slide.classList.remove('fading'); tutAnimating = false; }, 200);
+}
+
+function dismissTutorial() {
+  const ov = document.getElementById('tut-overlay');
+  if (ov) ov.classList.remove('show');
+  document.body.style.overflow = '';
+  try { localStorage.setItem('parity_tutorial_seen', '1'); } catch {}
+}
+
+function initTutorial() {
+  let seen = false;
+  try { seen = localStorage.getItem('parity_tutorial_seen') === '1'; } catch {}
+  if (!seen) showTutorial();
+}
+
 function initHowTo() {
   let open = true;
   try {
@@ -766,6 +1155,7 @@ function init() {
 
 initHowTo();
 init();
+initTutorial();
 </script>
 </body>
 </html>
