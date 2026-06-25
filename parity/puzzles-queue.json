@@ -1244,7 +1244,7 @@
   },
   {
     "id": 31,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "4,1": -1,
@@ -1281,7 +1281,7 @@
   },
   {
     "id": 32,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "3,0": -1,
@@ -1317,7 +1317,7 @@
   },
   {
     "id": 33,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "2,1": 1,
@@ -1356,7 +1356,7 @@
   },
   {
     "id": 34,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "2,0": -1,
@@ -1395,7 +1395,7 @@
   },
   {
     "id": 35,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "3,0": 1,
@@ -1434,7 +1434,7 @@
   },
   {
     "id": 36,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "0,1": 1,
@@ -1473,7 +1473,7 @@
   },
   {
     "id": 37,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "5,0": 1,
@@ -1512,7 +1512,7 @@
   },
   {
     "id": 38,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "4,0": -1,
@@ -1551,7 +1551,7 @@
   },
   {
     "id": 39,
-    "status": "pending",
+    "status": "approved",
     "shape": "wide-staircase",
     "clues": {
       "3,4": -1,
@@ -1610,7 +1610,7 @@
   },
   {
     "id": 40,
-    "status": "pending",
+    "status": "approved",
     "shape": "wide-staircase",
     "clues": {
       "3,2": 1,
@@ -1669,7 +1669,7 @@
   },
   {
     "id": 41,
-    "status": "pending",
+    "status": "approved",
     "shape": "wide-staircase",
     "clues": {
       "6,1": 1,
@@ -1728,7 +1728,7 @@
   },
   {
     "id": 42,
-    "status": "pending",
+    "status": "approved",
     "shape": "wide-staircase",
     "clues": {
       "3,4": 1,
@@ -1787,7 +1787,7 @@
   },
   {
     "id": 43,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "2,3": -1,
@@ -1823,7 +1823,7 @@
   },
   {
     "id": 44,
-    "status": "pending",
+    "status": "approved",
     "shape": "wide-staircase",
     "clues": {
       "5,1": -1,
@@ -1882,7 +1882,7 @@
   },
   {
     "id": 45,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "1,2": 1,
@@ -1918,7 +1918,7 @@
   },
   {
     "id": 46,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "1,2": -1,
@@ -1954,7 +1954,7 @@
   },
   {
     "id": 47,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "2,2": -1,
@@ -1990,7 +1990,7 @@
   },
   {
     "id": 48,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "2,0": 1,
@@ -2027,7 +2027,7 @@
   },
   {
     "id": 49,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "3,3": 1,
@@ -2064,7 +2064,7 @@
   },
   {
     "id": 50,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "1,1": 1,
@@ -2103,7 +2103,7 @@
   },
   {
     "id": 51,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "3,2": -1,
@@ -2139,7 +2139,7 @@
   },
   {
     "id": 52,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "2,2": -1,
@@ -2178,7 +2178,7 @@
   },
   {
     "id": 53,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "3,1": -1,
@@ -2217,7 +2217,7 @@
   },
   {
     "id": 54,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "3,3": 1,
@@ -2254,7 +2254,7 @@
   },
   {
     "id": 55,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "0,3": 1,
@@ -2293,7 +2293,7 @@
   },
   {
     "id": 56,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "2,2": 1,
@@ -2329,7 +2329,7 @@
   },
   {
     "id": 57,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "2,0": 1,
@@ -2365,7 +2365,7 @@
   },
   {
     "id": 58,
-    "status": "pending",
+    "status": "approved",
     "shape": "staircase",
     "clues": {
       "5,0": -1,
@@ -2404,7 +2404,7 @@
   },
   {
     "id": 59,
-    "status": "pending",
+    "status": "approved",
     "shape": "diamond",
     "clues": {
       "3,2": 1,
@@ -2441,7 +2441,7 @@
   },
   {
     "id": 60,
-    "status": "pending",
+    "status": "approved",
     "shape": "wide-staircase",
     "clues": {
       "2,3": -1,
